@@ -375,9 +375,10 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
 }
 
 .desktop-icon:hover {
-  background: rgba(47, 212, 196, 0.08);
-  border-color: rgba(47, 212, 196, 0.3);
-  transform: translateY(-2px);
+  background: rgba(47, 212, 196, 0.1);
+  border-color: rgba(47, 212, 196, 0.35);
+  transform: translateY(-3px) scale(1.04);
+  filter: drop-shadow(0 0 6px rgba(47, 212, 196, 0.3));
 }
 
 .desktop-icon.selected {
@@ -391,6 +392,12 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   height: 44px;
   margin-bottom: 6px;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.desktop-icon:hover .desktop-icon-svg {
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 8px rgba(47, 212, 196, 0.5));
 }
 
 .desktop-icon-label {
@@ -437,7 +444,7 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   flex-direction: column;
   opacity: 0;
   transform: scale(0.95);
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   visibility: hidden;
 }
 
@@ -445,6 +452,12 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   opacity: 1;
   transform: scale(1);
   visibility: visible;
+  animation: windowPopIn 0.2s ease-out;
+}
+
+@keyframes windowPopIn {
+  0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .window.active {
@@ -572,6 +585,13 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   height: 6px;
   background: var(--teal);
   box-shadow: 0 0 6px var(--teal-bright);
+  animation: dotPulse 2s infinite ease-in-out;
+  border-radius: 50%;
+}
+
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 4px var(--teal-bright); opacity: 1; }
+  50% { box-shadow: 0 0 10px var(--teal-bright), 0 0 16px var(--teal); opacity: 0.7; }
 }
 
 .window-h2 {
@@ -639,7 +659,12 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
 
 .gallery-card:hover {
   border-color: var(--teal);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 4px 20px rgba(47, 212, 196, 0.15), 0 0 10px rgba(47, 212, 196, 0.1);
+}
+
+.gallery-card:hover .gallery-img {
+  filter: brightness(1.1) saturate(1.1);
 }
 
 .gallery-img {
@@ -648,6 +673,7 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   object-fit: cover;
   border: 1px solid var(--border);
   border-radius: 2px;
+  transition: filter 0.3s ease;
 }
 
 .gallery-title {
@@ -690,7 +716,13 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
 
 .mentor-card:hover {
   border-color: var(--teal);
-  box-shadow: 0 0 12px rgba(47, 212, 196, 0.2);
+  box-shadow: 0 0 18px rgba(47, 212, 196, 0.25);
+  transform: translateY(-3px);
+}
+
+.mentor-card:hover .mentor-avatar {
+  box-shadow: 0 0 14px rgba(47, 212, 196, 0.5);
+  border-color: var(--teal-bright);
 }
 
 .mentor-avatar {
@@ -705,6 +737,7 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   font-family: var(--font-pixel);
   font-size: 18px;
   color: var(--teal-bright);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .mentor-name {
@@ -777,11 +810,13 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   padding: 10px 12px;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.2s, transform 0.2s ease;
 }
 
 .checklist-item:hover {
   background: rgba(47, 212, 196, 0.08);
+  border-color: rgba(47, 212, 196, 0.3);
+  transform: translateX(3px);
 }
 
 .checklist-cb {
@@ -1051,6 +1086,7 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   padding: 4px 8px;
   background: rgba(10, 22, 20, 0.8);
   border: 1px solid var(--border);
+  text-shadow: 0 0 6px rgba(47, 212, 196, 0.4);
 }
 
 /* Start Menu */

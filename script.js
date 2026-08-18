@@ -776,7 +776,7 @@
           resLine.textContent = "Trails: [01] Fundamentals [02] Web [03] Backend [04] ML [05] AppDev [06] CP [07] Open Source";
           break;
         case 'mentors':
-          resLine.textContent = "Mentors: Dr. Glenson Toney (Faculty Coordinator), Samarth, Robin, Shreyas, Ananya, Nihal";
+          resLine.textContent = "Team: Dr. Glenson Toney (Faculty Coordinator), Cyrus (President), Aaron (Vice President)";
           break;
         case 'events':
           resLine.textContent = "Events: CodeSprint 2026 National Hackathon, Skunkworks Hardware Lab, Deep Work Sprints";
