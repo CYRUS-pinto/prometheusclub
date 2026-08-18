@@ -332,21 +332,21 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
 /* Desktop Background Official Logo Watermark */
 .desktop-wallpaper-logo {
   position: absolute;
-  top: 48%;
-  left: 55%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: 380px;
-  height: 380px;
-  opacity: 0.13;
+  width: 280px;
+  height: 280px;
+  opacity: 0.06;
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(0 0 35px var(--teal));
-  animation: logoPulse 8s infinite ease-in-out;
+  filter: grayscale(0.3) drop-shadow(0 0 25px rgba(47, 212, 196, 0.15));
+  animation: logoBreathe 10s infinite ease-in-out;
 }
 
-@keyframes logoPulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.13; }
-  50% { transform: translate(-50%, -50%) scale(1.04); opacity: 0.18; }
+@keyframes logoBreathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.06; }
+  50% { transform: translate(-50%, -50%) scale(1.02); opacity: 0.09; }
 }
 
 /* Desktop Grid */
