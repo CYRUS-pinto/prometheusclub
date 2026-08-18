@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prometheus OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=Press+Start+2P&amp;family=Space+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#0a1614",
+                        "primary-fixed-dim": "#3ddccc",
+                        "secondary-container": "#ab2f01",
+                        "surface-container-lowest": "#05100e",
+                        "on-tertiary-container": "#005750",
+                        "tertiary-fixed-dim": "#6ad8cc",
+                        "outline-variant": "#3c4a47",
+                        "outline": "#859491",
+                        "on-surface-variant": "#bacac6",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#2b3735",
+                        "on-primary-fixed-variant": "#005049",
+                        "on-primary": "#003732",
+                        "surface-bright": "#2f3c39",
+                        "surface": "#0a1614",
+                        "inverse-on-surface": "#273330",
+                        "secondary-fixed-dim": "#ffb59f",
+                        "background": "#0a1614",
+                        "on-secondary": "#5f1500",
+                        "on-surface": "#d8e5e2",
+                        "on-primary-container": "#005750",
+                        "on-background": "#d8e5e2",
+                        "surface-container": "#162220",
+                        "on-secondary-container": "#ffc8b9",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#d8e5e2",
+                        "tertiary": "#7fede0",
+                        "on-tertiary": "#003733",
+                        "secondary-fixed": "#ffdbd1",
+                        "surface-container-highest": "#2b3735",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-error": "#690005",
+                        "tertiary-fixed": "#87f5e8",
+                        "on-primary-fixed": "#00201d",
+                        "primary": "#59f1e0",
+                        "secondary": "#ffb59f",
+                        "surface-container-low": "#121e1c",
+                        "on-secondary-fixed": "#3b0a00",
+                        "error-container": "#93000a",
+                        "primary-container": "#2fd4c4",
+                        "inverse-primary": "#006a61",
+                        "on-tertiary-fixed-variant": "#00504a",
+                        "surface-container-high": "#202c2a",
+                        "tertiary-container": "#61d0c4",
+                        "on-secondary-fixed-variant": "#862200",
+                        "surface-tint": "#3ddccc",
+                        "primary-fixed": "#63f9e8",
+                        "flame-orange": "#FF6A3D",
+                        "crt-green": "#33FF00",
+                        "crt-green-dim": "#1A8000"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "0px"
+                    },
+                    spacing: {
+                        "unit": "4px",
+                        "window-padding": "12px",
+                        "gutter": "16px",
+                        "margin": "24px"
+                    },
+                    fontFamily: {
+                        "system-code": ["\"Press Start 2P\""],
+                        "display-lg-mobile": ["Space Grotesk"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-content": ["Space Grotesk"],
+                        "terminal-md": ["JetBrains Mono"],
+                        "window-title": ["Space Grotesk"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "system-code": ["8px", { lineHeight: "12px", fontWeight: "400" }],
+                        "display-lg-mobile": ["32px", { lineHeight: "40px", fontWeight: "700" }],
+                        "display-lg": ["48px", { lineHeight: "56px", fontWeight: "700" }],
+                        "body-content": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "terminal-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "window-title": ["16px", { lineHeight: "24px", fontWeight: "600" }],
+                        "label-caps": ["11px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "700" }]
+                    },
+                    boxShadow: {
+                        'neon-glow': '0 0 15px rgba(47, 212, 196, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            cursor: crosshair;
+            overflow: hidden; /* Prevent scrolling on desktop, act like OS */
+        }
+        
+        /* Scanlines Overlay */
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* CRT Flicker & Grain */
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            5% { opacity: 0.85; }
+            10% { opacity: 0.95; }
+            100% { opacity: 1; }
+        }
+        .crt-overlay {
+            animation: flicker 0.15s infinite;
+            background-color: rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+            mix-blend-mode: multiply;
+        }
+
+        /* Window Styling */
+        .os-window {
+            background-color: theme('colors.surface-dim');
+            border: 2px solid theme('colors.outline');
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            position: absolute;
+            transition: opacity 0.2s;
+        }
+        
+        .window-header {
+            background-color: theme('colors.surface-container-high');
+            border-bottom: 2px solid theme('colors.outline');
+        }
+
+        .window-body {
+            background-color: theme('colors.surface-dim');
+        }
+
+        /* Boot Sequence Animations */
+        @keyframes typeWriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blinkCursor {
+            from, to { border-color: transparent }
+            50% { border-color: theme('colors.crt-green'); }
+        }
+
+        .typing-text {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 8px solid theme('colors.crt-green');
+            animation: blinkCursor 0.75s step-end infinite;
+        }
+        
+        /* Sequence Visibility */
+        #boot-screen, #loading-screen, #desktop-environment {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        /* Initially show boot */
+        #boot-screen { display: flex; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 16px; }
+        ::-webkit-scrollbar-track { background: theme('colors.surface-container-low'); border-left: 2px solid theme('colors.outline'); }
+        ::-webkit-scrollbar-thumb { background: theme('colors.outline'); border: 2px solid theme('colors.surface-container-low'); }
+        ::-webkit-scrollbar-thumb:hover { background: theme('colors.primary'); }
+
+        .flicker-flame {
+            animation: flickerFlame 2s infinite alternate;
+        }
+        @keyframes flickerFlame {
+            0% { text-shadow: 0 0 5px #FF6A3D, 0 0 10px #FF6A3D; }
+            100% { text-shadow: 0 0 2px #FF6A3D, 0 0 5px #FF6A3D; }
+        }
+        
+        #context-menu {
+            display: none;
+            position: absolute;
+            z-index: 9999;
+            background: theme('colors.surface-container');
+            border: 2px solid theme('colors.outline');
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="bg-black text-crt-green h-screen w-screen relative overflow-hidden font-terminal-md select-none">
+<!-- Global CRT Overlays -->
+<div class="scanlines absolute inset-0 w-full h-full"></div>
+<div class="crt-overlay absolute inset-0 w-full h-full z-[9998]"></div>
+<!-- Context Menu -->
+<div class="w-48 py-1 font-system-code text-system-code text-on-surface" id="context-menu">
+<button class="w-full text-left px-4 py-2 hover:bg-surface-variant hover:text-primary">New Folder</button>
+<button class="w-full text-left px-4 py-2 hover:bg-surface-variant hover:text-primary">Properties</button>
+<button class="w-full text-left px-4 py-2 hover:bg-surface-variant hover:text-primary border-t border-outline">Refresh</button>
+</div>
+<!-- ==========================================
+         PHASE 1: BOOT SCREEN
+         ========================================== -->
+<div class="flex-col p-gutter bg-black text-crt-green font-terminal-md text-terminal-md z-[100]" id="boot-screen">
+<div class="mb-4 whitespace-pre font-system-code text-xs">
+  _____  _____   ____  __  __ ______ _______ _    _ ______ _    _  _____ 
+ |  __ \|  __ \ / __ \|  \/  |  ____|__   __| |  | |  ____| |  | |/ ____|
+ | |__) | |__) | |  | | \  / | |__     | |  | |__| | |__  | |  | | (___  
+ |  ___/|  _  /| |  | | |\/| |  __|    | |  |  __  |  __| | |  | |\___ \ 
+ | |    | | \ \| |__| | |  | | |____   | |  | |  | | |____| |__| |____) |
+ |_|    |_|  \_\\____/|_|  |_|______|  |_|  |_|  |_|______|\____/|_____/ 
+                                                                         
+</div>
+<div class="mb-4 font-system-code text-system-code">
+<p>PROMETHEUS BIOS v2.6</p>
+<p>Copyright (C) 1999, Prometheus Systems</p>
+</div>
+<div class="flex flex-col space-y-1 w-full max-w-2xl font-system-code text-system-code" id="boot-logs">
+<!-- Populated by JS -->
+</div>
+</div>
+<!-- ==========================================
+         PHASE 2: LOADING SCREEN
+         ========================================== -->
+<div class="flex-col items-center justify-center bg-black z-[90]" id="loading-screen">
+<!-- Mascot -->
+<div class="relative w-32 h-32 mb-8 text-crt-green">
+<pre class="font-system-code text-xs leading-none">   /\_/\
+  ( o.o )
+   &gt; ^ &lt;
+</pre>
+</div>
+<!-- Loading Bar -->
+<div class="w-64 h-8 border-2 border-crt-green p-1 flex">
+<div class="h-full bg-crt-green w-0 transition-all duration-100 ease-linear" id="loading-progress"></div>
+</div>
+<p class="font-system-code text-system-code text-crt-green mt-4 uppercase tracking-widest blink-text">Initializing OS...</p>
+</div>
+<!-- ==========================================
+         PHASE 3: DESKTOP ENVIRONMENT
+         ========================================== -->
+<div class="flex-col h-full relative" id="desktop-environment">
+<!-- Desktop Grid / Canvas -->
+<div class="flex-1 relative p-margin grid grid-cols-1 md:grid-cols-12 gap-margin h-[calc(100vh-48px)] overflow-hidden" id="desktop-canvas">
+<!-- Desktop Icons -->
+<div class="absolute top-margin left-margin flex flex-col space-y-6 z-10">
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('manifesto-window')">
+<div class="w-12 h-12 bg-transparent border-2 border-transparent group-focus:border-outline group-focus:bg-surface-variant flex items-center justify-center mb-2 transition-colors">
+<span class="material-symbols-outlined text-crt-green text-3xl" data-icon="description">description</span>
+</div>
+<span class="font-system-code text-system-code text-crt-green bg-black group-focus:bg-primary group-focus:text-black px-1">Manifesto.txt</span>
+</button>
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('trails-window')">
+<div class="w-12 h-12 bg-transparent border-2 border-transparent group-focus:border-outline group-focus:bg-surface-variant flex items-center justify-center mb-2 transition-colors">
+<span class="material-symbols-outlined text-crt-green text-3xl" data-icon="folder_open">folder_open</span>
+</div>
+<span class="font-system-code text-system-code text-crt-green bg-black group-focus:bg-primary group-focus:text-black px-1">Trails/</span>
+</button>
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('join-window')">
+<div class="w-12 h-12 bg-transparent border-2 border-transparent group-focus:border-flame-orange group-focus:bg-surface-variant flex items-center justify-center mb-2 transition-colors">
+<span class="material-symbols-outlined text-flame-orange text-3xl" data-icon="terminal">terminal</span>
+</div>
+<span class="font-system-code text-system-code text-flame-orange bg-black group-focus:bg-flame-orange group-focus:text-black px-1">Join.exe</span>
+</button>
+</div>
+<!-- Windows Container (Draggable elements would go here, positioned absolutely. Using fixed coords for static render) -->
+<!-- Manifesto Window -->
+<div class="os-window w-full md:w-[500px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 hidden" id="manifesto-window" style="display: block; top: 30%; left: 40%;">
+<div class="window-header h-8 px-window-padding flex justify-between items-center cursor-move" onmousedown="dragElement(document.getElementById('manifesto-window'), event)">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-crt-green text-sm" data-icon="description">description</span>
+<span class="font-system-code text-system-code text-crt-green">Manifesto.txt</span>
+</div>
+<div class="flex space-x-1">
+<button class="w-5 h-5 border-2 border-outline bg-surface hover:bg-surface-variant text-crt-green flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]" onclick="document.getElementById('manifesto-window').style.display='none'">
+<span class="font-system-code text-[10px]">-</span>
+</button>
+<button class="w-5 h-5 border-2 border-outline bg-surface hover:bg-surface-variant text-crt-green flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]">
+<span class="font-system-code text-[10px]">#</span>
+</button>
+<button class="w-5 h-5 border-2 border-outline bg-surface hover:bg-error hover:text-on-error text-crt-green flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]" onclick="document.getElementById('manifesto-window').style.display='none'">
+<span class="font-system-code text-[10px]">X</span>
+</button>
+</div>
+</div>
+<div class="window-body p-margin text-crt-green border-t-2 border-outline max-h-[400px] overflow-y-auto font-system-code text-xs leading-relaxed">
+<p class="mb-4">&gt; KNOWLEDGE ISN'T HANDED DOWN. IT'S TAKEN.</p>
+<p class="mb-4">
+                        The old systems want you passive. A consumer of documentation, a follower of tutorials. We reject this. 
+                        True understanding is forged in the mechanical depths of trial, error, and system architecture.
+                    </p>
+<p class="mb-4">
+                        Prometheus OS is a proving ground. It is cold, unforgiving, and exactly what you need to break through the noise.
+                    </p>
+<div class="mt-6 border-t-2 border-outline-variant pt-4 flex justify-end">
+<button class="px-4 py-2 border-2 border-outline bg-surface text-crt-green font-system-code text-system-code hover:bg-surface-variant shadow-[2px_2px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]" onclick="document.getElementById('manifesto-window').style.display='none'">[ACKNOWLEDGE]</button>
+</div>
+</div>
+</div>
+<!-- Join Window -->
+<div class="os-window w-[300px] right-margin bottom-margin z-40 hidden border-flame-orange" id="join-window" style="display: block; top: 60%; left: 60%;">
+<div class="window-header h-8 px-window-padding flex justify-between items-center cursor-move bg-surface-container border-b-2 border-flame-orange" onmousedown="dragElement(document.getElementById('join-window'), event)">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-flame-orange text-sm" data-icon="terminal">terminal</span>
+<span class="font-system-code text-system-code text-flame-orange">Join.exe</span>
+</div>
+<button class="w-5 h-5 border-2 border-flame-orange bg-surface hover:bg-error text-flame-orange flex items-center justify-center shadow-[2px_2px_0px_rgba(255,106,61,0.5)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]" onclick="document.getElementById('join-window').style.display='none'">
+<span class="font-system-code text-[10px]">X</span>
+</button>
+</div>
+<div class="window-body p-margin flex flex-col items-center text-center bg-black">
+<span class="material-symbols-outlined text-6xl text-flame-orange mb-2" data-icon="lock_open">lock_open</span>
+<p class="font-system-code text-xs text-flame-orange mb-6">&gt; Initialize user sequence.<br/>&gt; Gain root access.</p>
+<button class="w-full py-3 bg-flame-orange text-black font-system-code text-system-code tracking-widest border-2 border-flame-orange hover:bg-black hover:text-flame-orange transition-colors shadow-[4px_4px_0px_rgba(255,106,61,0.3)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px]">
+                        INITIATE REBELLION
+                    </button>
+</div>
+</div>
+</div>
+<!-- Taskbar (Footer) -->
+<div class="fixed bottom-0 left-0 w-full h-12 bg-surface-container border-t-2 border-outline shadow-[0_-4px_10px_rgba(0,0,0,0.8)] z-50 flex justify-between items-center px-2">
+<div class="flex items-center h-full space-x-2 py-1">
+<!-- Start Button -->
+<button class="h-full px-4 flex items-center space-x-2 bg-surface border-2 border-outline hover:bg-surface-variant shadow-[2px_2px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]">
+<span class="material-symbols-outlined text-crt-green text-sm" data-icon="computer">computer</span>
+<span class="font-system-code text-system-code text-crt-green uppercase tracking-widest">START</span>
+</button>
+<!-- Open Windows Tabs -->
+<div class="hidden md:flex items-center h-full space-x-2">
+<button class="h-full px-3 flex items-center space-x-2 border-2 border-outline bg-surface-dim text-crt-green min-w-[120px] hover:bg-surface-variant shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+<span class="material-symbols-outlined text-sm" data-icon="description">description</span>
+<span class="font-system-code text-system-code truncate">Manifesto.txt</span>
+</button>
+<button class="h-full px-3 flex items-center space-x-2 border-2 border-outline bg-surface-variant text-crt-green min-w-[120px] shadow-[inset_2px_2px_0px_rgba(0,0,0,1)]">
+<span class="material-symbols-outlined text-sm" data-icon="terminal">terminal</span>
+<span class="font-system-code text-system-code truncate">Join.exe</span>
+</button>
+</div>
+</div>
+<!-- System Tray -->
+<div class="flex items-center space-x-4 h-full border-l-2 border-outline pl-4 py-1">
+<div class="h-full flex items-center border-2 border-outline bg-surface-dim px-2 shadow-[inset_2px_2px_0px_rgba(0,0,0,1)]">
+<span class="font-system-code text-system-code text-crt-green" id="system-clock">14:02:45</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Initialization Script -->
+<script>
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('system-clock').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Boot Sequence Logic
+        const bootLogs = [
+            "Initializing memory... OK (640K base)",
+            "Loading hardware profiles... OK",
+            "Mounting file systems... /dev/hda1",
+            "Starting network interface eth0... SUCCESS",
+            "Loading trails module... OK",
+            "Establishing connection to mainframe...",
+            "Connection established. Handshake complete."
+        ];
+
+        async function runBootSequence() {
+            const logContainer = document.getElementById('boot-logs');
+            
+            for (let i = 0; i < bootLogs.length; i++) {
+                await new Promise(r => setTimeout(r, 400 + Math.random() * 600));
+                const p = document.createElement('p');
+                p.className = 'typing-text';
+                p.style.animation = `typeWriter ${bootLogs[i].length * 0.02}s steps(${bootLogs[i].length}, end) forwards, blinkCursor 0.5s step-end infinite`;
+                p.innerText = '> ' + bootLogs[i];
+                logContainer.appendChild(p);
+                
+                // Remove typing cursor from previous line
+                if(i > 0) {
+                    logContainer.children[i-1].style.borderRight = 'none';
+                    logContainer.children[i-1].style.animation = 'none';
+                }
+            }
+
+            // Remove last cursor
+            if(logContainer.lastChild) {
+                logContainer.lastChild.style.borderRight = 'none';
+                logContainer.lastChild.style.animation = 'none';
+            }
+
+            await new Promise(r => setTimeout(r, 1000));
+            document.getElementById('boot-screen').style.display = 'none';
+            document.getElementById('loading-screen').style.display = 'flex';
+            
+            runLoadingSequence();
+        }
+
+        async function runLoadingSequence() {
+            const bar = document.getElementById('loading-progress');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if(progress > 100) progress = 100;
+                bar.style.width = `${progress}%`;
+                
+                if(progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('loading-screen').style.display = 'none';
+                        document.getElementById('desktop-environment').style.display = 'flex';
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Start the sequence
+        // In a real env, uncomment this to run the full boot sequence.
+        // For visual review, we skip straight to desktop.
+        // runBootSequence();
+        
+        // Skip sequence for immediate visual render
+        document.getElementById('boot-screen').style.display = 'none';
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('desktop-environment').style.display = 'flex';
+
+        function toggleWindow(id) {
+            const el = document.getElementById(id);
+            if(el.style.display === 'none') el.style.display = 'block';
+            // Bring to front logic could go here
+        }
+        
+        // Window Dragging Logic
+        function dragElement(elmnt, e) {
+            e = e || window.event;
+            e.preventDefault();
+            // get the mouse cursor position at startup:
+            let pos3 = e.clientX;
+            let pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+            
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // calculate the new cursor position:
+                let pos1 = pos3 - e.clientX;
+                let pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position:
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+                // remove transform translate as we are setting absolute top/left
+                elmnt.style.transform = "none";
+            }
+            
+            function closeDragElement() {
+                // stop moving when mouse button is released:
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+        
+        // Context Menu Logic
+        const desktopCanvas = document.getElementById('desktop-canvas');
+        const contextMenu = document.getElementById('context-menu');
+        
+        desktopCanvas.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.pageX + 'px';
+            contextMenu.style.top = e.pageY + 'px';
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (e.target !== contextMenu) {
+                contextMenu.style.display = 'none';
+            }
+        });
+    </script>
+</body></html>

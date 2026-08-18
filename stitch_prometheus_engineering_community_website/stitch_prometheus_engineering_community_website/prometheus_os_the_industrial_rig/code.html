@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prometheus OS - Industrial Rig</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=Press+Start+2P&amp;family=Space+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#0a1614",
+                        "primary-fixed-dim": "#3ddccc",
+                        "secondary-container": "#ab2f01",
+                        "surface-container-lowest": "#05100e",
+                        "on-tertiary-container": "#005750",
+                        "tertiary-fixed-dim": "#6ad8cc",
+                        "outline-variant": "#2fd4c4", /* Teal high-contrast */
+                        "outline": "#2fd4c4", /* Teal high-contrast */
+                        "on-surface-variant": "#bacac6",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#162220", /* Tighter surface */
+                        "on-primary-fixed-variant": "#005049",
+                        "on-primary": "#003732",
+                        "surface-bright": "#2f3c39",
+                        "surface": "#0a1614",
+                        "inverse-on-surface": "#273330",
+                        "secondary-fixed-dim": "#ffb59f",
+                        "background": "#0a1614",
+                        "on-secondary": "#5f1500",
+                        "on-surface": "#2fd4c4", /* Teal text default for terminal feel */
+                        "on-primary-container": "#005750",
+                        "on-background": "#d8e5e2",
+                        "surface-container": "#121e1c", /* Darker surface container */
+                        "on-secondary-container": "#ffc8b9",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#d8e5e2",
+                        "tertiary": "#7fede0",
+                        "on-tertiary": "#003733",
+                        "secondary-fixed": "#ffdbd1",
+                        "surface-container-highest": "#202c2a",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-error": "#690005",
+                        "tertiary-fixed": "#87f5e8",
+                        "on-primary-fixed": "#00201d",
+                        "primary": "#2fd4c4", /* Core teal */
+                        "secondary": "#ffb59f",
+                        "surface-container-low": "#0a1614",
+                        "on-secondary-fixed": "#3b0a00",
+                        "error-container": "#93000a",
+                        "primary-container": "#162220",
+                        "inverse-primary": "#006a61",
+                        "on-tertiary-fixed-variant": "#00504a",
+                        "surface-container-high": "#162220",
+                        "tertiary-container": "#61d0c4",
+                        "on-secondary-fixed-variant": "#862200",
+                        "surface-tint": "#2fd4c4",
+                        "primary-fixed": "#2fd4c4",
+                        "flame-orange": "#FF6A3D"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0", /* Sharp corners for industrial feel */
+                        "lg": "0",
+                        "xl": "0",
+                        "full": "0"
+                    },
+                    spacing: {
+                        "unit": "4px",
+                        "window-padding": "8px", /* Tighter spacing */
+                        "gutter": "8px", /* Tighter spacing */
+                        "margin": "16px" /* Tighter spacing */
+                    },
+                    fontFamily: {
+                        "system-code": ["\"Press Start 2P\""],
+                        "display-lg-mobile": ["JetBrains Mono"], /* Monospace headers */
+                        "display-lg": ["JetBrains Mono"], /* Monospace headers */
+                        "body-content": ["JetBrains Mono"], /* Monospace body */
+                        "terminal-md": ["JetBrains Mono"],
+                        "window-title": ["JetBrains Mono"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "system-code": ["8px", { lineHeight: "12px", fontWeight: "400" }],
+                        "display-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "700" }],
+                        "display-lg": ["32px", { lineHeight: "40px", fontWeight: "700" }],
+                        "body-content": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "terminal-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "window-title": ["14px", { lineHeight: "20px", fontWeight: "700", letterSpacing: "0.05em" }],
+                        "label-caps": ["10px", { lineHeight: "14px", letterSpacing: "0.15em", fontWeight: "700" }]
+                    },
+                    boxShadow: {
+                        'neon-glow': '0 0 10px rgba(47, 212, 196, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            cursor: crosshair;
+            overflow: hidden;
+        }
+        
+        /* Grid Overlay Wallpaper */
+        .desktop-grid {
+            background-color: theme('colors.surface-dim');
+            background-image: 
+                linear-gradient(theme('colors.surface-variant') 1px, transparent 1px),
+                linear-gradient(90deg, theme('colors.surface-variant') 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* CRT Flicker & Grain */
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            5% { opacity: 0.85; }
+            10% { opacity: 0.95; }
+            100% { opacity: 1; }
+        }
+        .crt-overlay {
+            animation: flicker 0.15s infinite;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        /* Industrial Window Styling */
+        .os-window {
+            background-color: theme('colors.surface-dim');
+            border: 2px solid theme('colors.primary'); /* Thick high-contrast teal border */
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5); /* Hard shadow */
+            position: absolute;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        
+        .window-header {
+            background: theme('colors.surface-variant');
+            border-bottom: 2px solid theme('colors.primary');
+        }
+
+        .window-body {
+            background-color: theme('colors.surface-dim');
+        }
+
+        /* Tech Label styling */
+        .tech-label {
+            display: inline-block;
+            background: theme('colors.primary-container');
+            color: theme('colors.primary');
+            padding: 2px 6px;
+            font-size: 10px;
+            text-transform: uppercase;
+            border: 1px solid theme('colors.primary');
+            margin-bottom: 4px;
+        }
+
+        /* Boot Sequence Animations */
+        @keyframes typeWriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blinkCursor {
+            from, to { border-color: transparent }
+            50% { border-color: theme('colors.primary'); }
+        }
+
+        .typing-text {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid theme('colors.primary');
+            animation: blinkCursor 0.75s step-end infinite;
+        }
+        
+        /* Sequence Visibility */
+        #boot-screen, #loading-screen, #desktop-environment {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        /* Custom Scrollbar - Blocky */
+        ::-webkit-scrollbar { width: 16px; }
+        ::-webkit-scrollbar-track { background: theme('colors.surface-dim'); border-left: 2px solid theme('colors.primary'); }
+        ::-webkit-scrollbar-thumb { background: theme('colors.primary'); border: 2px solid theme('colors.surface-dim'); }
+        ::-webkit-scrollbar-thumb:hover { background: theme('colors.tertiary'); }
+
+        .flicker-flame {
+            animation: flickerFlame 2s infinite alternate;
+        }
+        @keyframes flickerFlame {
+            0% { text-shadow: 0 0 5px #FF6A3D, 0 0 10px #FF6A3D; }
+            100% { text-shadow: 0 0 2px #FF6A3D, 0 0 5px #FF6A3D; }
+        }
+    </style>
+</head>
+<body class="bg-surface-dim text-primary h-screen w-screen relative overflow-hidden font-terminal-md select-none desktop-grid">
+<!-- Global CRT Overlays -->
+<div class="crt-overlay absolute inset-0 w-full h-full z-[9998]"></div>
+<!-- ==========================================
+         PHASE 1: BOOT SCREEN
+         ========================================== -->
+<div class="flex-col p-gutter bg-black text-primary font-terminal-md text-terminal-md z-[100]" id="boot-screen">
+<div class="mb-4">
+<p>&gt; PROMETHEUS_OS [RIG: INDUSTRIAL] v2.6</p>
+<p>&gt; SYS_ARCH: 64-BIT / CORE: #0A1614</p>
+</div>
+<div class="flex flex-col space-y-1 w-full max-w-2xl" id="boot-logs">
+<!-- Populated by JS -->
+</div>
+</div>
+<!-- ==========================================
+         PHASE 2: LOADING SCREEN
+         ========================================== -->
+<div class="flex-col items-center justify-center bg-surface-dim z-[90]" id="loading-screen">
+<!-- Mascot -->
+<div class="relative w-32 h-32 mb-8 border-2 border-primary p-4 bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-6xl text-surface-container-highest absolute inset-0 m-auto" data-icon="memory" data-weight="fill" style="font-variation-settings: 'FILL' 1;">memory</span>
+<span class="material-symbols-outlined text-4xl text-flame-orange absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flicker-flame" data-icon="local_fire_department" data-weight="fill" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<!-- Loading Bar -->
+<div class="w-64 h-8 border-2 border-primary p-1 flex bg-surface-dim">
+<div class="h-full bg-primary w-0 transition-all duration-100 ease-linear shadow-none" id="loading-progress"></div>
+</div>
+<p class="font-system-code text-system-code text-primary mt-4 uppercase tracking-widest blink-text">&gt; MOUNTING DATA_VOL...</p>
+</div>
+<!-- ==========================================
+         PHASE 3: DESKTOP ENVIRONMENT
+         ========================================== -->
+<div class="flex-col h-full relative" id="desktop-environment">
+<!-- Desktop Grid / Canvas -->
+<div class="flex-1 relative p-margin grid grid-cols-1 md:grid-cols-12 gap-margin h-[calc(100vh-48px)] overflow-hidden">
+<!-- Desktop Icons -->
+<div class="absolute top-margin left-margin flex flex-col space-y-6 z-10">
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('manifesto-window')">
+<div class="w-16 h-16 bg-surface-dim border-2 border-primary group-hover:bg-primary-container flex items-center justify-center mb-2 shadow-none transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:text-tertiary" data-icon="terminal">terminal</span>
+</div>
+<span class="font-system-code text-system-code text-primary bg-surface-dim px-1">DATA_LOG_01</span>
+</button>
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('trails-window')">
+<div class="w-16 h-16 bg-surface-dim border-2 border-primary group-hover:bg-primary-container flex items-center justify-center mb-2 shadow-none transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:text-tertiary" data-icon="dns">dns</span>
+</div>
+<span class="font-system-code text-system-code text-primary bg-surface-dim px-1">DIR:TRAILS</span>
+</button>
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('join-window')">
+<div class="w-16 h-16 bg-surface-dim border-2 border-flame-orange group-hover:bg-[#3d180c] flex items-center justify-center mb-2 shadow-none transition-colors">
+<span class="material-symbols-outlined text-flame-orange text-3xl" data-icon="power_settings_new">power_settings_new</span>
+</div>
+<span class="font-system-code text-system-code text-flame-orange bg-surface-dim px-1">EXEC_ROOT</span>
+</button>
+</div>
+<!-- Windows Container -->
+<!-- Manifesto Window -->
+<div class="os-window w-full md:w-[600px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 hidden" id="manifesto-window" style="display: block; top: 35%; left: 45%;">
+<div class="window-header h-8 px-window-padding flex justify-between items-center cursor-move bg-surface-dim">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="terminal">terminal</span>
+<span class="font-window-title text-window-title text-primary uppercase">SYS.MAN: DATA_LOG_01</span>
+</div>
+<div class="flex space-x-1">
+<button class="w-5 h-5 border-2 border-primary bg-surface-dim hover:bg-primary hover:text-surface-dim text-primary flex items-center justify-center font-system-code text-[8px]" onclick="document.getElementById('manifesto-window').style.display='none'">_</button>
+<button class="w-5 h-5 border-2 border-primary bg-surface-dim hover:bg-primary hover:text-surface-dim text-primary flex items-center justify-center font-system-code text-[8px]">[]</button>
+<button class="w-5 h-5 border-2 border-primary bg-surface-dim hover:bg-primary hover:text-surface-dim text-primary flex items-center justify-center font-system-code text-[8px]" onclick="document.getElementById('manifesto-window').style.display='none'">X</button>
+</div>
+</div>
+<div class="window-body p-margin text-on-surface-variant max-h-[500px] overflow-y-auto">
+<div class="tech-label font-system-code">&gt; LOG_ENTRY_ID: 0x9A4F</div>
+<h2 class="font-display-lg text-display-lg text-primary mb-6 border-l-4 border-primary pl-4 uppercase">Knowledge isn't handed down. It's taken.</h2>
+<div class="space-y-4 font-body-content text-body-content text-primary/80">
+<p class="pl-4 border-l border-primary/30">
+                        &gt; The old systems want you passive. A consumer of documentation, a follower of tutorials. We reject this. 
+                        &gt; True understanding is forged in the mechanical depths of trial, error, and system architecture.
+                    </p>
+<p class="pl-4 border-l border-primary/30">
+                        &gt; Prometheus OS is a proving ground. It is cold, unforgiving, and exactly what you need to break through the noise.
+                    </p>
+</div>
+<div class="mt-8 border-t-2 border-primary pt-4 flex justify-between items-center">
+<div class="tech-label font-system-code">&gt; AWAITING_INPUT...</div>
+<button class="px-6 py-2 border-2 border-primary bg-surface-dim text-primary font-label-caps text-label-caps hover:bg-primary hover:text-surface-dim transition-all uppercase" onclick="document.getElementById('manifesto-window').style.display='none'">ACK_SIG_REC</button>
+</div>
+</div>
+</div>
+<!-- Join Window -->
+<div class="os-window w-[350px] right-margin bottom-margin z-40 hidden" id="join-window" style="display: block; top: 60%; left: 60%;">
+<div class="window-header h-8 px-window-padding flex justify-between items-center cursor-move bg-surface-dim border-b-2 border-flame-orange">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-flame-orange text-sm" data-icon="power_settings_new">power_settings_new</span>
+<span class="font-window-title text-window-title text-flame-orange uppercase">EXEC_ROOT.BAT</span>
+</div>
+<button class="w-5 h-5 border-2 border-flame-orange bg-surface-dim hover:bg-flame-orange hover:text-surface-dim text-flame-orange flex items-center justify-center font-system-code text-[8px]" onclick="document.getElementById('join-window').style.display='none'">X</button>
+</div>
+<div class="window-body p-margin flex flex-col items-center text-center bg-[#0d0d0d]">
+<div class="tech-label !bg-[#2a130c] !border-flame-orange !text-flame-orange w-full text-left mb-4">&gt; AUTH_REQ: ROOT_ACCESS</div>
+<span class="material-symbols-outlined text-6xl text-flame-orange mb-4 border-2 border-flame-orange p-2 border-dashed" data-icon="lock_open">lock_open</span>
+<p class="font-terminal-md text-terminal-md text-primary/70 mb-6 font-bold">&gt; Initialize user sequence.<br/>&gt; Gain root access.</p>
+<button class="w-full py-4 bg-flame-orange text-black font-label-caps text-label-caps tracking-widest border-2 border-flame-orange hover:bg-black hover:text-flame-orange transition-colors flicker-flame uppercase font-bold">
+                        INITIATE REBELLION
+                    </button>
+</div>
+</div>
+</div>
+<!-- Taskbar (Footer) -->
+<div class="fixed bottom-0 left-0 w-full h-12 bg-surface-dim border-t-2 border-primary z-50 flex justify-between items-center px-0">
+<div class="flex items-center h-full">
+<!-- Start Button -->
+<button class="h-full px-6 flex items-center space-x-2 bg-primary border-r-2 border-surface-dim hover:bg-tertiary transition-colors text-surface-dim">
+<span class="material-symbols-outlined" data-icon="dataset" data-weight="fill" style="font-variation-settings: 'FILL' 1;">dataset</span>
+<span class="font-system-code text-system-code font-bold uppercase tracking-widest">SYS_CORE</span>
+</button>
+<!-- Open Windows Tabs -->
+<div class="hidden md:flex items-center h-full space-x-0 border-r-2 border-primary">
+<button class="h-full px-4 flex items-center space-x-2 border-r-2 border-primary bg-surface-dim text-primary min-w-[140px] hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="terminal">terminal</span>
+<span class="font-terminal-md text-terminal-md text-xs truncate uppercase">DATA_LOG_01</span>
+</button>
+<button class="h-full px-4 flex items-center space-x-2 border-r-2 border-flame-orange bg-[#2a130c] text-flame-orange min-w-[140px]">
+<span class="material-symbols-outlined text-sm" data-icon="power_settings_new">power_settings_new</span>
+<span class="font-terminal-md text-terminal-md text-xs truncate font-bold uppercase">EXEC_ROOT.BAT</span>
+</button>
+</div>
+</div>
+<!-- System Tray -->
+<div class="flex items-center space-x-4 h-full border-l-2 border-primary px-4 bg-primary-container">
+<span class="font-system-code text-[8px] text-primary hidden sm:block">&gt; RIG_ACTIVE: TRUE</span>
+<div class="flex items-center space-x-2 text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="router">router</span>
+<span class="material-symbols-outlined text-sm" data-icon="memory">memory</span>
+</div>
+<div class="font-system-code text-[10px] text-primary bg-surface-dim border-2 border-primary px-3 py-1">
+<span id="system-clock">14:02:45</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Initialization Script -->
+<script>
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('system-clock').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Boot Sequence Logic
+        const bootLogs = [
+            "> MOUNTING KERNEL... OK",
+            "> INIT: MEMORY_BANKS [0x0A - 0xFF]",
+            "> SYS_CHECK: TEAL_CHANNELS... SYNCED",
+            "> LOADING INDUSTRIAL_RIG_V1.sys",
+            "> BYPASSING SECURITY PROTOCOLS...",
+            "> ESTABLISHING ROOT ACCESS...",
+            "> TERMINAL READY."
+        ];
+
+        async function runBootSequence() {
+            const logContainer = document.getElementById('boot-logs');
+            
+            for (let i = 0; i < bootLogs.length; i++) {
+                await new Promise(r => setTimeout(r, 300 + Math.random() * 400));
+                const p = document.createElement('p');
+                p.className = 'typing-text';
+                p.style.animation = `typeWriter ${bootLogs[i].length * 0.015}s steps(${bootLogs[i].length}, end) forwards, blinkCursor 0.5s step-end infinite`;
+                p.innerText = bootLogs[i];
+                logContainer.appendChild(p);
+                
+                // Remove typing cursor from previous line
+                if(i > 0) {
+                    logContainer.children[i-1].style.borderRight = 'none';
+                    logContainer.children[i-1].style.animation = 'none';
+                }
+            }
+
+            // Remove last cursor
+            if(logContainer.lastChild) {
+                logContainer.lastChild.style.borderRight = 'none';
+                logContainer.lastChild.style.animation = 'none';
+            }
+
+            await new Promise(r => setTimeout(r, 800));
+            document.getElementById('boot-screen').style.display = 'none';
+            document.getElementById('loading-screen').style.display = 'flex';
+            
+            runLoadingSequence();
+        }
+
+        async function runLoadingSequence() {
+            const bar = document.getElementById('loading-progress');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if(progress > 100) progress = 100;
+                bar.style.width = `${progress}%`;
+                
+                if(progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('loading-screen').style.display = 'none';
+                        document.getElementById('desktop-environment').style.display = 'flex';
+                    }, 400);
+                }
+            }, 150);
+        }
+
+        // Start the sequence
+        // runBootSequence();
+        
+        // Skip sequence for immediate visual render
+        document.getElementById('boot-screen').style.display = 'none';
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('desktop-environment').style.display = 'flex';
+
+        function toggleWindow(id) {
+            const el = document.getElementById(id);
+            if(el.style.display === 'none') el.style.display = 'block';
+        }
+    </script>
+</body></html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SYS_TERMINAL_V1.0 - Desktop Environment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=jetbrainsMono:wght@100..900&family=spaceGrotesk:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ffb4ab",
+                        "surface-container-high": "#2c2927",
+                        "primary-fixed": "#ffddb5",
+                        "surface-variant": "#373432",
+                        "on-tertiary-container": "#45433c",
+                        "surface-bright": "#3c3936",
+                        "surface": "#151311",
+                        "on-surface-variant": "#d6c4b0",
+                        "on-secondary-container": "#a6b7c8",
+                        "tertiary-fixed-dim": "#cac6bc",
+                        "on-primary-fixed": "#2a1800",
+                        "surface-dim": "#151311",
+                        "inverse-on-surface": "#33302e",
+                        "on-tertiary": "#323029",
+                        "secondary-container": "#384957",
+                        "inverse-surface": "#e8e1dd",
+                        "on-surface": "#e8e1dd",
+                        "on-primary": "#462b00",
+                        "on-secondary-fixed-variant": "#384957",
+                        "secondary-fixed": "#d3e5f6",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#373432",
+                        "secondary-fixed-dim": "#b7c9da",
+                        "primary-container": "#e8a33d",
+                        "on-secondary": "#21323f",
+                        "on-tertiary-fixed-variant": "#49473f",
+                        "on-primary-container": "#5f3c00",
+                        "inverse-primary": "#835400",
+                        "tertiary-fixed": "#e7e2d7",
+                        "surface-container-low": "#1d1b19",
+                        "surface-container": "#211f1d",
+                        "on-tertiary-fixed": "#1d1c15",
+                        "outline-variant": "#514536",
+                        "primary": "#ffc16c",
+                        "secondary": "#b7c9da",
+                        "on-primary-fixed-variant": "#643f00",
+                        "on-secondary-fixed": "#0b1d2a",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a",
+                        "background": "#151311",
+                        "tertiary-container": "#b4b0a6",
+                        "surface-container-lowest": "#100e0c",
+                        "tertiary": "#d0cbc1",
+                        "surface-tint": "#ffb956",
+                        "on-background": "#e8e1dd",
+                        "primary-fixed-dim": "#ffb956",
+                        "outline": "#9e8e7c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "border-width": "2px",
+                        "margin": "24px",
+                        "window-padding": "8px"
+                    },
+                    "fontFamily": {
+                        "system-pixel": ["\"Press Start 2P\""],
+                        "headline-lg": ["spaceGrotesk"],
+                        "headline-md": ["spaceGrotesk"],
+                        "label-caps": ["jetbrainsMono"],
+                        "body-lg": ["spaceGrotesk"],
+                        "body-md": ["spaceGrotesk"],
+                        "code-sm": ["jetbrainsMono"]
+                    },
+                    "fontSize": {
+                        "system-pixel": ["12px", { "lineHeight": "16px", "letterSpacing": "1px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "code-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #151311;
+            color: #e8e1dd;
+            overflow: hidden;
+            cursor: default; /* Change to a pixel cursor if available */
+        }
+        
+        /* Scanline Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        /* Flicker Animation */
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            5% { opacity: 0.85; }
+            10% { opacity: 0.95; }
+            15% { opacity: 1; }
+            50% { opacity: 0.95; }
+            55% { opacity: 0.9; }
+            60% { opacity: 0.95; }
+            100% { opacity: 1; }
+        }
+        .flicker-effect {
+            animation: flicker 0.1s infinite;
+        }
+
+        /* Boot Screen */
+        #boot-screen {
+            position: fixed;
+            inset: 0;
+            background-color: #000;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #e8a33d;
+        }
+
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background-color: #151311;
+            z-index: 9000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Desktop */
+        #desktop {
+            position: fixed;
+            inset: 0;
+            display: none; /* Shown after boot */
+        }
+
+        /* Window Styling */
+        .window {
+            position: absolute;
+            background-color: #211D19;
+            border: 2px solid #5A6B7A;
+            box-shadow: inset 2px 2px 0px 0px rgba(255,255,255,0.1), 
+                        inset -2px -2px 0px 0px rgba(0,0,0,0.5),
+                        4px 4px 0px 0px rgba(0,0,0,0.8);
+            min-width: 300px;
+            display: none; /* Hidden by default */
+        }
+        .window.active {
+            z-index: 100;
+            border-color: #e8a33d;
+            box-shadow: 0 0 8px #E8A33D, inset 2px 2px 0px 0px rgba(232,163,61,0.5), inset -2px -2px 0px 0px rgba(0,0,0,0.5);
+        }
+
+        .title-bar {
+            background-color: #5A6B7A;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+        .window.active .title-bar {
+            background-color: #e8a33d;
+            color: #151311;
+        }
+
+        .title-bar-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: #e8e1dd;
+        }
+        .window.active .title-bar-text {
+            color: #151311;
+        }
+
+        .title-bar-controls {
+            display: flex;
+            gap: 2px;
+        }
+        .title-bar-btn {
+            width: 16px;
+            height: 16px;
+            background-color: #211D19;
+            border: 1px solid #151311;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #e8e1dd;
+            cursor: pointer;
+        }
+        .title-bar-btn:active {
+            box-shadow: inset 1px 1px 2px #000;
+            padding-top: 2px;
+            padding-left: 2px;
+        }
+
+        .window-content {
+            padding: 16px;
+            background-color: #151311;
+            color: #e8e1dd;
+            height: calc(100% - 24px);
+            overflow-y: auto;
+        }
+
+        /* Desktop Icons */
+        .desktop-icon {
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .desktop-icon:hover .icon-label {
+            background-color: rgba(232, 163, 61, 0.2);
+            color: #e8a33d;
+        }
+
+        /* Buttons */
+        .btn-hardware {
+            border: 2px solid;
+            border-color: #e8a33d #5f3c00 #5f3c00 #e8a33d;
+            background-color: #211D19;
+            color: #e8a33d;
+            padding: 8px 16px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-hardware:active {
+            border-color: #5f3c00 #e8a33d #e8a33d #5f3c00;
+            background-color: #e8a33d;
+            color: #151311;
+            transform: translate(1px, 1px);
+        }
+
+        /* Inputs */
+        .input-well {
+            border: 2px solid;
+            border-color: #000 #5A6B7A #5A6B7A #000;
+            background-color: #151311;
+            color: #e8e1dd;
+            padding: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .input-well:focus {
+            outline: none;
+            border-color: #e8a33d;
+            box-shadow: 0 0 8px #e8a33d;
+        }
+
+    </style>
+</head>
+<body class="flicker-effect">
+<div class="scanlines"></div>
+<!-- BOOT SCREEN -->
+<div id="boot-screen">
+<div class="text-code-sm" id="boot-text"></div>
+</div>
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+<img alt="OS Turtle Mascot" class="w-32 h-32 mb-8 pixelated" src="https://lh3.googleusercontent.com/aida/AP1WRLvnL44oEGtwQjR0PB31mBVtwkdJmvNwehNF6PhZhHCitVgnYj6OlPNDazC2IGqU4dJ8qlHC54GMGJemrtkhsb9vF-R-cEsQ6TjO2N658O1tHkunHzI_ZdP44hzxcGzVDR15sLvg6lGFIoqfQfA8qeL0EDOMd1TuM3KL9SEQeotR6BbhvwOzBbtesQBg9irsGMoPSsG842t1CoeQgwZL1oA5FukuJy1y_cwWA4J8-j2ngj-c06XrhjaBgmAN"/>
+<div class="font-system-pixel text-primary mb-4">LOADING SYSTEM KERNEL...</div>
+<div class="w-64 h-4 border-2 border-primary bg-surface-container-high p-1">
+<div class="h-full bg-primary w-0" id="loading-bar"></div>
+</div>
+</div>
+<!-- DESKTOP ENVIRONMENT -->
+<div id="desktop">
+<!-- Desktop Icons Area -->
+<div class="flex flex-col flex-wrap h-[calc(100vh-48px)] p-4 content-start gap-4">
+<div class="desktop-icon" onclick="openWindow('manifesto-win')">
+<span class="material-symbols-outlined text-4xl text-primary mb-2" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<span class="icon-label font-system-pixel text-[10px] bg-surface px-1">Manifesto.exe</span>
+</div>
+<div class="desktop-icon" onclick="openWindow('trails-win')">
+<span class="material-symbols-outlined text-4xl text-primary mb-2" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="icon-label font-system-pixel text-[10px] bg-surface px-1">Trails/</span>
+</div>
+<div class="desktop-icon" onclick="openWindow('howitworks-win')">
+<span class="material-symbols-outlined text-4xl text-primary mb-2" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="icon-label font-system-pixel text-[10px] bg-surface px-1">How-It-Works.txt</span>
+</div>
+<div class="desktop-icon" onclick="openWindow('join-win')">
+<span class="material-symbols-outlined text-4xl text-primary mb-2" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+<span class="icon-label font-system-pixel text-[10px] bg-surface px-1">Join.exe</span>
+</div>
+</div>
+<!-- WINDOWS -->
+<!-- Manifesto Window -->
+<div class="window" id="manifesto-win" style="top: 100px; left: 100px; width: 400px; height: 300px;">
+<div class="title-bar">
+<div class="title-bar-text">Manifesto.exe</div>
+<div class="title-bar-controls">
+<div class="title-bar-btn" onclick="closeWindow('manifesto-win')">X</div>
+</div>
+</div>
+<div class="window-content font-body-lg">
+<h2 class="font-headline-md text-primary mb-4 border-b-2 border-outline-variant pb-2">THE CREED</h2>
+<p class="mb-4">Knowledge isn't handed down.</p>
+<p class="text-primary font-bold">It's taken.</p>
+<div class="mt-8 text-code-sm text-outline">
+                    > root access granted.<br/>
+                    > executing reality_override.sh...
+                </div>
+</div>
+</div>
+<!-- Trails Window -->
+<div class="window" id="trails-win" style="top: 150px; left: 150px; width: 500px; height: 400px;">
+<div class="title-bar">
+<div class="title-bar-text">Trails/</div>
+<div class="title-bar-controls">
+<div class="title-bar-btn" onclick="closeWindow('trails-win')">X</div>
+</div>
+</div>
+<div class="window-content">
+<div class="grid grid-cols-3 gap-4">
+<!-- Folders -->
+<div class="flex flex-col items-center cursor-pointer hover:bg-surface-variant p-2 border border-transparent hover:border-outline">
+<span class="material-symbols-outlined text-4xl text-secondary" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="font-system-pixel text-[10px] mt-2">Fundamentals</span>
+</div>
+<!-- ... Add more folders ... -->
+</div>
+</div>
+</div>
+<!-- Bottom Taskbar (BottomNavBar adaptation) -->
+<div class="fixed bottom-0 left-0 w-full h-12 z-50 flex items-center px-2 gap-2 bg-surface-container-high border-t-2 border-outline shadow-[0_-2px_10px_rgba(232,163,61,0.2)]">
+<button class="btn-hardware flex items-center gap-2 h-8 px-2 py-1 text-[12px]">
+<img alt="Start" class="w-4 h-4 pixelated" src="https://lh3.googleusercontent.com/aida/AP1WRLvnL44oEGtwQjR0PB31mBVtwkdJmvNwehNF6PhZhHCitVgnYj6OlPNDazC2IGqU4dJ8qlHC54GMGJemrtkhsb9vF-R-cEsQ6TjO2N658O1tHkunHzI_ZdP44hzxcGzVDR15sLvg6lGFIoqfQfA8qeL0EDOMd1TuM3KL9SEQeotR6BbhvwOzBbtesQBg9irsGMoPSsG842t1CoeQgwZL1oA5FukuJy1y_cwWA4J8-j2ngj-c06XrhjaBgmAN"/>
+                START
+            </button>
+<div class="w-px h-8 bg-outline-variant mx-2"></div>
+<!-- Open Window Tabs (Dynamic in a real app) -->
+<div class="flex-1 flex gap-2 overflow-hidden" id="taskbar-tabs">
+<!-- Example active tab -->
+<div class="bg-primary text-on-primary flex items-center px-4 py-1 border-2 border-primary-container font-system-pixel text-[10px] cursor-pointer">
+                    Manifesto.exe
+                </div>
+</div>
+<div class="w-px h-8 bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-2 px-4 py-1 border-2 border-transparent text-primary font-system-pixel text-[10px]">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span id="clock">TIME: 23:59</span>
+</div>
+</div>
+</div>
+<script>
+        // Boot Sequence Logic
+        const bootText = [
+            "SYS_TERMINAL_V1.0 BIOS DETECTED",
+            "Checking memory... OK",
+            "Initializing processors... OK",
+            "Loading CRT drivers... OK",
+            "Mounting file systems... OK",
+            "Checking network interfaces... OK",
+            "Booting OS..."
+        ];
+
+        let textIndex = 0;
+        const bootScreen = document.getElementById('boot-screen');
+        const textContainer = document.getElementById('boot-text');
+        
+        function typeBootText() {
+            if (textIndex < bootText.length) {
+                textContainer.innerHTML += `<div>> ${bootText[textIndex]}</div>`;
+                textIndex++;
+                setTimeout(typeBootText, 200 + Math.random() * 300);
+            } else {
+                setTimeout(showLoadingScreen, 500);
+            }
+        }
+
+        function showLoadingScreen() {
+            bootScreen.style.display = 'none';
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.style.display = 'flex';
+            
+            let progress = 0;
+            const bar = document.getElementById('loading-bar');
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if(progress > 100) progress = 100;
+                bar.style.width = `${progress}%`;
+                if(progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(showDesktop, 500);
+                }
+            }, 100);
+        }
+
+        function showDesktop() {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('desktop').style.display = 'block';
+            updateClock();
+            setInterval(updateClock, 60000);
+            
+            // Auto open manifesto
+            openWindow('manifesto-win');
+        }
+
+        // Start sequence
+        setTimeout(typeBootText, 500);
+
+        // Desktop Logic
+        let zIndexCounter = 100;
+
+        function openWindow(id) {
+            const win = document.getElementById(id);
+            win.style.display = 'block';
+            makeActive(win);
+        }
+
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function makeActive(win) {
+            document.querySelectorAll('.window').forEach(w => w.classList.remove('active'));
+            win.classList.add('active');
+            zIndexCounter++;
+            win.style.zIndex = zIndexCounter;
+        }
+
+        // Simple Window Dragging
+        document.querySelectorAll('.window').forEach(win => {
+            const titleBar = win.querySelector('.title-bar');
+            let isDown = false;
+            let offset = [0,0];
+
+            win.addEventListener('mousedown', () => makeActive(win));
+
+            titleBar.addEventListener('mousedown', function(e) {
+                isDown = true;
+                offset = [
+                    win.offsetLeft - e.clientX,
+                    win.offsetTop - e.clientY
+                ];
+            }, true);
+
+            document.addEventListener('mouseup', function() {
+                isDown = false;
+            }, true);
+
+            document.addEventListener('mousemove', function(e) {
+                e.preventDefault();
+                if (isDown) {
+                    win.style.left = (e.clientX + offset[0]) + 'px';
+                    win.style.top  = (e.clientY + offset[1]) + 'px';
+                }
+            }, true);
+        });
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = 'TIME: ' + timeString;
+        }
+
+    </script>
+</body></html>

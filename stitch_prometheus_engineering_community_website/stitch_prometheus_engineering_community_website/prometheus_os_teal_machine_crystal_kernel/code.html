@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prometheus OS - Crystal Kernel</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=Press+Start+2P&amp;family=Space+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#0a1614",
+                        "primary-fixed-dim": "#3ddccc",
+                        "secondary-container": "#ab2f01",
+                        "surface-container-lowest": "#05100e",
+                        "on-tertiary-container": "#005750",
+                        "tertiary-fixed-dim": "#6ad8cc",
+                        "outline-variant": "rgba(60, 74, 71, 0.4)", /* Softened outline for glass */
+                        "outline": "#859491",
+                        "on-surface-variant": "#bacac6",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#2b3735",
+                        "on-primary-fixed-variant": "#005049",
+                        "on-primary": "#003732",
+                        "surface-bright": "#2f3c39",
+                        "surface": "#0a1614",
+                        "inverse-on-surface": "#273330",
+                        "secondary-fixed-dim": "#ffb59f",
+                        "background": "#050b0a", /* Darker background */
+                        "on-secondary": "#5f1500",
+                        "on-surface": "#d8e5e2",
+                        "on-primary-container": "#005750",
+                        "on-background": "#d8e5e2",
+                        "surface-container": "rgba(22, 34, 32, 0.6)", /* Glass base */
+                        "on-secondary-container": "#ffc8b9",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#d8e5e2",
+                        "tertiary": "#7fede0",
+                        "on-tertiary": "#003733",
+                        "secondary-fixed": "#ffdbd1",
+                        "surface-container-highest": "rgba(43, 55, 53, 0.8)", /* Opaque glass */
+                        "on-tertiary-fixed": "#00201d",
+                        "on-error": "#690005",
+                        "tertiary-fixed": "#87f5e8",
+                        "on-primary-fixed": "#00201d",
+                        "primary": "#59f1e0",
+                        "secondary": "#ffb59f",
+                        "surface-container-low": "rgba(18, 30, 28, 0.7)", /* Taskbar glass */
+                        "on-secondary-fixed": "#3b0a00",
+                        "error-container": "#93000a",
+                        "primary-container": "rgba(47, 212, 196, 0.15)", /* Soft primary glass */
+                        "inverse-primary": "#006a61",
+                        "on-tertiary-fixed-variant": "#00504a",
+                        "surface-container-high": "rgba(32, 44, 42, 0.7)", /* Window body */
+                        "tertiary-container": "#61d0c4",
+                        "on-secondary-fixed-variant": "#862200",
+                        "surface-tint": "#3ddccc",
+                        "primary-fixed": "#63f9e8",
+                        "flame-orange": "#FF6A3D",
+                        "glass-obsidian": "rgba(5, 16, 14, 0.75)"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem",
+                        "glass": "4px" /* 4px border radius request */
+                    },
+                    spacing: {
+                        "unit": "4px",
+                        "window-padding": "12px",
+                        "gutter": "16px",
+                        "margin": "24px"
+                    },
+                    fontFamily: {
+                        "system-code": ["\"Press Start 2P\""],
+                        "display-lg-mobile": ["Space Grotesk"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-content": ["Space Grotesk"],
+                        "terminal-md": ["JetBrains Mono"],
+                        "window-title": ["Space Grotesk"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "system-code": ["8px", { lineHeight: "12px", fontWeight: "400" }],
+                        "display-lg-mobile": ["32px", { lineHeight: "40px", fontWeight: "700" }],
+                        "display-lg": ["48px", { lineHeight: "56px", fontWeight: "700" }],
+                        "body-content": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "terminal-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "window-title": ["16px", { lineHeight: "24px", fontWeight: "600" }],
+                        "label-caps": ["11px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "700" }]
+                    },
+                    boxShadow: {
+                        'neon-glow': '0 0 20px rgba(89, 241, 224, 0.15)',
+                        'glass-panel': 'inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.5)',
+                        'taskbar': '0 -4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)'
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            cursor: default;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, theme('colors.surface-dim') 0%, theme('colors.background') 100%);
+        }
+        
+        /* Subtle Ambient Glow behind desktop */
+        .ambient-glow {
+            position: absolute;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(89, 241, 224, 0.03) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Glass Window Styling */
+        .os-window {
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            background-color: theme('colors.glass-obsidian');
+            border: 1px solid theme('colors.outline-variant');
+            border-radius: theme('borderRadius.glass');
+            box-shadow: theme('boxShadow.glass-panel');
+            position: absolute;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+        
+        .window-header {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 100%);
+            border-bottom: 1px solid theme('colors.outline-variant');
+        }
+
+        .window-body {
+            background: transparent;
+        }
+
+        /* Fluid Boot Sequence */
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulseGlow {
+            0% { filter: drop-shadow(0 0 15px rgba(89, 241, 224, 0.4)); }
+            50% { filter: drop-shadow(0 0 30px rgba(89, 241, 224, 0.8)); }
+            100% { filter: drop-shadow(0 0 15px rgba(89, 241, 224, 0.4)); }
+        }
+
+        .mascot-glow {
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+
+        /* Sequence Visibility */
+        #boot-screen, #loading-screen, #desktop-environment {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        #boot-screen { display: flex; }
+
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: theme('colors.outline-variant'); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: theme('colors.primary'); }
+
+        .flicker-flame {
+            animation: flickerFlame 2s infinite alternate;
+        }
+        @keyframes flickerFlame {
+            0% { text-shadow: 0 0 5px rgba(255,106,61,0.5), 0 0 10px rgba(255,106,61,0.3); }
+            100% { text-shadow: 0 0 2px rgba(255,106,61,0.8), 0 0 5px rgba(255,106,61,0.5); }
+        }
+        
+        /* Draggable visual cue */
+        .cursor-move:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface h-screen w-screen relative overflow-hidden font-body-content select-none">
+<div class="ambient-glow"></div>
+<!-- ==========================================
+         PHASE 1: BOOT SCREEN
+         ========================================== -->
+<div class="flex-col p-gutter bg-background text-primary font-terminal-md text-terminal-md z-[100]" id="boot-screen">
+<div class="mb-8 fade-in-up" style="animation-delay: 0.2s">
+<p class="text-white opacity-80">PROMETHEUS BIOS // CRYSTAL KERNEL</p>
+<p class="text-xs text-on-surface-variant">System initialized.</p>
+</div>
+<div class="flex flex-col space-y-2 w-full max-w-2xl text-sm" id="boot-logs">
+<!-- Populated by JS -->
+</div>
+</div>
+<!-- ==========================================
+         PHASE 2: LOADING SCREEN
+         ========================================== -->
+<div class="flex-col items-center justify-center bg-background z-[90]" id="loading-screen">
+<!-- High-Glow Turtle Mascot -->
+<div class="relative w-40 h-40 mb-12 mascot-glow">
+<span class="material-symbols-outlined text-9xl text-primary absolute inset-0 m-auto" data-icon="cruelty_free" data-weight="fill" style="font-variation-settings: 'FILL' 1;">cruelty_free</span>
+<div class="absolute inset-0 bg-primary opacity-20 blur-2xl rounded-full"></div>
+</div>
+<!-- Smooth Loading Bar -->
+<div class="w-72 h-1 bg-surface-container rounded-full overflow-hidden relative shadow-neon-glow">
+<div class="h-full bg-primary w-0 transition-all duration-300 ease-out absolute top-0 left-0" id="loading-progress"></div>
+</div>
+<p class="font-terminal-md text-terminal-md text-primary mt-6 tracking-[0.2em] opacity-80">MOUNTING CRYSTAL KERNEL</p>
+</div>
+<!-- ==========================================
+         PHASE 3: DESKTOP ENVIRONMENT
+         ========================================== -->
+<div class="flex-col h-full relative z-10" id="desktop-environment">
+<!-- Desktop Grid / Canvas -->
+<div class="flex-1 relative p-margin grid grid-cols-1 md:grid-cols-12 gap-margin h-[calc(100vh-56px)] overflow-hidden" id="desktop-area">
+<!-- Desktop Icons -->
+<div class="absolute top-margin left-margin flex flex-col space-y-6 z-10">
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('manifesto-window')">
+<div class="w-14 h-14 rounded-glass bg-surface-container border border-outline-variant group-hover:border-primary group-hover:bg-primary-container flex items-center justify-center mb-3 shadow-glass-panel transition-all duration-300 backdrop-blur-md">
+<span class="material-symbols-outlined text-primary text-3xl opacity-80 group-hover:opacity-100 transition-opacity" data-icon="description">description</span>
+</div>
+<span class="font-terminal-md text-[11px] text-on-surface-variant group-hover:text-primary transition-colors tracking-wide shadow-sm">Manifesto.exe</span>
+</button>
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('trails-window')">
+<div class="w-14 h-14 rounded-glass bg-surface-container border border-outline-variant group-hover:border-primary group-hover:bg-primary-container flex items-center justify-center mb-3 shadow-glass-panel transition-all duration-300 backdrop-blur-md">
+<span class="material-symbols-outlined text-primary text-3xl opacity-80 group-hover:opacity-100 transition-opacity" data-icon="folder_open">folder_open</span>
+</div>
+<span class="font-terminal-md text-[11px] text-on-surface-variant group-hover:text-primary transition-colors tracking-wide shadow-sm">Trails/</span>
+</button>
+<button class="desktop-icon flex flex-col items-center group w-24 text-center focus:outline-none" onclick="toggleWindow('join-window')">
+<div class="w-14 h-14 rounded-glass bg-surface-container border border-outline-variant group-hover:border-flame-orange group-hover:bg-surface-variant flex items-center justify-center mb-3 shadow-glass-panel transition-all duration-300 backdrop-blur-md">
+<span class="material-symbols-outlined text-flame-orange text-3xl opacity-80 group-hover:opacity-100 transition-opacity" data-icon="terminal">terminal</span>
+</div>
+<span class="font-terminal-md text-[11px] text-flame-orange tracking-wide shadow-sm">Join.exe</span>
+</button>
+</div>
+<!-- Manifesto Window -->
+<div class="os-window w-full md:w-[600px] z-30 hidden" id="manifesto-window" onmousedown="bringToFront(this)" style="display: block; top: 20%; left: 35%;">
+<div class="window-header h-10 px-4 flex justify-between items-center cursor-move" onmousedown="startDrag(event, 'manifesto-window')">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-sm opacity-70" data-icon="description">description</span>
+<span class="font-terminal-md text-[13px] text-on-surface opacity-90 tracking-wide">Manifesto.exe</span>
+</div>
+<div class="flex space-x-2">
+<button class="w-3 h-3 rounded-full bg-surface hover:bg-outline-variant transition-colors flex items-center justify-center" onclick="document.getElementById('manifesto-window').style.display='none'">
+</button>
+<button class="w-3 h-3 rounded-full bg-surface hover:bg-outline-variant transition-colors flex items-center justify-center">
+</button>
+<button class="w-3 h-3 rounded-full bg-surface hover:bg-error transition-colors flex items-center justify-center" onclick="document.getElementById('manifesto-window').style.display='none'">
+</button>
+</div>
+</div>
+<div class="window-body p-8 text-on-surface-variant max-h-[500px] overflow-y-auto">
+<h2 class="font-display-lg text-[40px] leading-tight text-primary mb-6 font-light">Knowledge isn't handed down. It's taken.</h2>
+<div class="space-y-6 text-[15px] font-light text-on-surface opacity-80">
+<p class="font-body-content">
+                            The old systems want you passive. A consumer of documentation, a follower of tutorials. We reject this. 
+                            True understanding is forged in the mechanical depths of trial, error, and system architecture.
+                        </p>
+<p class="font-body-content">
+                            Prometheus OS is a proving ground. It is cold, unforgiving, and exactly what you need to break through the noise.
+                        </p>
+</div>
+<div class="mt-8 border-t border-outline-variant border-opacity-30 pt-6 flex justify-end">
+<button class="px-6 py-2.5 rounded-glass bg-primary-container text-primary font-terminal-md text-xs tracking-widest hover:bg-primary hover:text-on-primary transition-all duration-300 shadow-neon-glow" onclick="document.getElementById('manifesto-window').style.display='none'">ACKNOWLEDGE</button>
+</div>
+</div>
+</div>
+<!-- Join Window -->
+<div class="os-window w-[380px] z-40 hidden" id="join-window" onmousedown="bringToFront(this)" style="display: block; top: 50%; left: 60%;">
+<div class="window-header h-10 px-4 flex justify-between items-center cursor-move" onmousedown="startDrag(event, 'join-window')">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-flame-orange text-sm opacity-70" data-icon="terminal">terminal</span>
+<span class="font-terminal-md text-[13px] text-flame-orange opacity-90 tracking-wide">Join.exe</span>
+</div>
+<div class="flex space-x-2">
+<button class="w-3 h-3 rounded-full bg-surface hover:bg-error transition-colors flex items-center justify-center" onclick="document.getElementById('join-window').style.display='none'">
+</button>
+</div>
+</div>
+<div class="window-body p-8 flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(255,106,61,0.1)]">
+<span class="material-symbols-outlined text-3xl text-flame-orange opacity-80" data-icon="lock_open">lock_open</span>
+</div>
+<p class="font-terminal-md text-sm text-on-surface mb-8 opacity-80 leading-relaxed">Initialize user sequence.<br/>Gain root access.</p>
+<button class="w-full py-3.5 rounded-glass bg-transparent text-flame-orange border border-flame-orange border-opacity-50 font-terminal-md text-xs tracking-[0.2em] hover:bg-flame-orange hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(255,106,61,0.15)] hover:shadow-[0_0_25px_rgba(255,106,61,0.4)]">
+                        INITIATE REBELLION
+                    </button>
+</div>
+</div>
+</div>
+<!-- Sleek Taskbar -->
+<div class="fixed bottom-0 left-0 w-full h-14 bg-surface-container-low backdrop-blur-xl border-t border-outline-variant shadow-taskbar z-50 flex justify-between items-center px-4">
+<div class="flex items-center h-full space-x-2">
+<!-- Start Button -->
+<button class="h-10 px-5 rounded-glass flex items-center space-x-3 bg-white bg-opacity-5 hover:bg-opacity-10 border border-outline-variant border-opacity-50 transition-all">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="cruelty_free" data-weight="fill" style="font-variation-settings: 'FILL' 1;">cruelty_free</span>
+<span class="font-terminal-md text-xs text-white tracking-widest opacity-90">START</span>
+</button>
+<!-- Open Windows Tabs -->
+<div class="hidden md:flex items-center h-full pl-4 space-x-2">
+<button class="h-9 px-4 rounded-glass flex items-center space-x-2 bg-white bg-opacity-5 hover:bg-opacity-10 text-on-surface-variant min-w-[140px] transition-colors border border-transparent hover:border-outline-variant">
+<span class="material-symbols-outlined text-[16px] opacity-70" data-icon="description">description</span>
+<span class="font-terminal-md text-[11px] truncate">Manifesto.exe</span>
+</button>
+<button class="h-9 px-4 rounded-glass flex items-center space-x-2 bg-primary-container text-primary min-w-[140px] shadow-neon-glow border border-primary border-opacity-30">
+<span class="material-symbols-outlined text-[16px]" data-icon="terminal">terminal</span>
+<span class="font-terminal-md text-[11px] truncate">Join.exe</span>
+</button>
+</div>
+</div>
+<!-- System Tray -->
+<div class="flex items-center space-x-6 h-full pr-2">
+<span class="font-terminal-md text-[10px] text-on-surface-variant opacity-50 tracking-widest uppercase">Crystal Kernel</span>
+<div class="flex items-center space-x-3 text-primary opacity-80">
+<span class="material-symbols-outlined text-[18px]" data-icon="wifi">wifi</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="battery_full">battery_full</span>
+</div>
+<div class="font-terminal-md text-xs text-white opacity-90 pl-4 border-l border-outline-variant border-opacity-30">
+<span id="system-clock">14:02</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Initialization Script -->
+<script>
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('system-clock').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Window Management
+        let zIndexCounter = 100;
+        
+        function bringToFront(el) {
+            zIndexCounter++;
+            el.style.zIndex = zIndexCounter;
+        }
+
+        function toggleWindow(id) {
+            const el = document.getElementById(id);
+            if(el.style.display === 'none') {
+                el.style.display = 'block';
+                bringToFront(el);
+            }
+        }
+
+        // Draggable Windows
+        function startDrag(e, windowId) {
+            if(e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+            
+            const win = document.getElementById(windowId);
+            bringToFront(win);
+            
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            e = e || window.event;
+            e.preventDefault();
+            
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                // Keep within desktop area bounds roughly
+                const newTop = win.offsetTop - pos2;
+                const newLeft = win.offsetLeft - pos1;
+                
+                if(newTop > 0) win.style.top = newTop + "px";
+                win.style.left = newLeft + "px";
+                
+                // Override transform translate used for centering initially
+                win.style.transform = "none";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        // Boot Sequence Logic
+        const bootLogs = [
+            "Initializing Crystal Kernel v1.0",
+            "Loading obsidian glass drivers...",
+            "Mounting sensory interfaces...",
+            "Establishing neural link...",
+            "Accessing Prometheus mainframe...",
+            "System ready."
+        ];
+
+        async function runBootSequence() {
+            const logContainer = document.getElementById('boot-logs');
+            
+            for (let i = 0; i < bootLogs.length; i++) {
+                await new Promise(r => setTimeout(r, 300 + Math.random() * 400));
+                const p = document.createElement('p');
+                p.className = 'fade-in-up text-on-surface opacity-70';
+                p.innerText = "> " + bootLogs[i];
+                logContainer.appendChild(p);
+            }
+
+            await new Promise(r => setTimeout(r, 800));
+            document.getElementById('boot-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('boot-screen').style.display = 'none';
+                document.getElementById('loading-screen').style.display = 'flex';
+                document.getElementById('loading-screen').style.opacity = '1';
+                runLoadingSequence();
+            }, 300);
+        }
+
+        async function runLoadingSequence() {
+            const bar = document.getElementById('loading-progress');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 8;
+                if(progress > 100) progress = 100;
+                bar.style.width = `${progress}%`;
+                
+                if(progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('loading-screen').style.opacity = '0';
+                        setTimeout(() => {
+                            document.getElementById('loading-screen').style.display = 'none';
+                            const desktop = document.getElementById('desktop-environment');
+                            desktop.style.display = 'flex';
+                            desktop.classList.add('fade-in-up');
+                        }, 500);
+                    }, 600);
+                }
+            }, 100);
+        }
+
+        // Skip sequence for immediate visual render
+        document.getElementById('boot-screen').style.display = 'none';
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('desktop-environment').style.display = 'flex';
+
+    </script>
+</body></html>

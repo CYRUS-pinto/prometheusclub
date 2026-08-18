@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prometheus OS — St. Aloysius Coding Club</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- CRT Scanline & Grain Texture Overlay -->
+  <div class="scanline-overlay crt-flicker"></div>
+
+  <!-- 1. BOOT SCREEN (BIOS) -->
+  <div id="boot-screen">
+    <div class="boot-header">
+      <div class="boot-brand-wrap">
+        <img src="assets/logo.png" class="boot-logo-img" alt="Official Logo">
+        <span class="boot-title">PROMETHEUS BIOS v2.6.0</span>
+      </div>
+      <span class="boot-ver">ST. ALOYSIUS UNIV CODING CLUB</span>
+    </div>
+    
+    <div class="boot-terminal" id="boot-terminal">
+      <!-- Monospace typewriter lines generated via script.js -->
+    </div>
+
+    <div class="boot-progress-wrap">
+      <div class="boot-progress-bar">
+        <div class="boot-progress-fill" id="boot-progress-fill"></div>
+      </div>
+      <div class="boot-footer">
+        <span>INITIALIZING SYSTEM KERNEL & MEMORY GAUGE...</span>
+        <button class="boot-skip-btn" id="boot-skip-btn">SKIP [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. OS SPLASH LOADING SCREEN -->
+  <div id="loading-screen">
+    <div class="splash-mascot-container">
+      <img src="assets/logo.png" class="splash-official-logo" alt="Official Logo">
+      <div class="splash-title">PROMETHEUS OS v2.6</div>
+      <div class="splash-sub">ST. ALOYSIUS CODING CLUB</div>
+    </div>
+
+    <div class="segmented-loader">
+      <div class="seg"></div>
+      <div class="seg"></div>
+      <div class="seg"></div>
+      <div class="seg"></div>
+      <div class="seg"></div>
+      <div class="seg"></div>
+      <div class="seg"></div>
+      <div class="seg"></div>
+    </div>
+  </div>
+
+  <!-- 3. DESKTOP ENVIRONMENT -->
+  <div id="desktop">
+
+    <!-- Official Logo Wallpaper Watermark -->
+    <img src="assets/logo.png" class="desktop-wallpaper-logo" alt="Prometheus Official Logo Watermark">
+
+    <!-- Desktop Icons Grid -->
+    <div class="desktop-icon-grid">
+
+      <!-- Manifesto Icon -->
+      <div class="desktop-icon" data-window="manifesto-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <rect x="2" y="4" width="28" height="24" rx="2" fill="#101F1C" stroke="#2FD4C4" stroke-width="2"/>
+          <rect x="2" y="4" width="28" height="6" fill="#1B3B36"/>
+          <circle cx="6" cy="7" r="1.5" fill="#FF6A3D"/>
+          <circle cx="10" cy="7" r="1.5" fill="#7FEDE0"/>
+          <path d="M6 16 L10 19 L6 22" stroke="#2FD4C4" stroke-width="2" fill="none"/>
+        </svg>
+        <span class="desktop-icon-label">Manifesto.exe</span>
+      </div>
+
+      <!-- Trails Folder Icon -->
+      <div class="desktop-icon" data-window="trails-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <path d="M2,8 L12,8 L15,11 L30,11 L30,26 L2,26 Z" fill="#0F6158" stroke="#2FD4C4" stroke-width="2"/>
+          <path d="M5,14 L27,14" stroke="#7FEDE0" stroke-width="1.5"/>
+          <rect x="8" y="17" width="4" height="4" fill="#2FD4C4"/>
+          <rect x="14" y="17" width="4" height="4" fill="#7FEDE0"/>
+        </svg>
+        <span class="desktop-icon-label">Trails/</span>
+      </div>
+
+      <!-- Events Browser Icon -->
+      <div class="desktop-icon" data-window="browser-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <circle cx="16" cy="16" r="13" fill="#101F1C" stroke="#2FD4C4" stroke-width="2"/>
+          <ellipse cx="16" cy="16" rx="6" ry="13" fill="none" stroke="#7FEDE0" stroke-width="1.5"/>
+          <line x1="3" y1="16" x2="29" y2="16" stroke="#7FEDE0" stroke-width="1.5"/>
+        </svg>
+        <span class="desktop-icon-label">Browser.exe</span>
+      </div>
+
+      <!-- Mentors Community Icon -->
+      <div class="desktop-icon" data-window="mentors-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <rect x="4" y="4" width="24" height="24" rx="3" fill="#101F1C" stroke="#2FD4C4" stroke-width="2"/>
+          <circle cx="16" cy="13" r="4" fill="#7FEDE0"/>
+          <path d="M8 24 C8 19, 24 19, 24 24" stroke="#2FD4C4" stroke-width="2" fill="none"/>
+        </svg>
+        <span class="desktop-icon-label">Mentors.exe</span>
+      </div>
+
+      <!-- Trail Tracker Icon -->
+      <div class="desktop-icon" data-window="progress-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <rect x="5" y="4" width="22" height="24" fill="#101F1C" stroke="#2FD4C4" stroke-width="2"/>
+          <path d="M9 12 L13 16 L22 8" stroke="#7FEDE0" stroke-width="2" fill="none"/>
+          <line x1="9" y1="21" x2="23" y2="21" stroke="#2FD4C4" stroke-width="2"/>
+        </svg>
+        <span class="desktop-icon-label">Progress.exe</span>
+      </div>
+
+      <!-- How-It-Works Icon -->
+      <div class="desktop-icon" data-window="howitworks-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <rect x="5" y="3" width="22" height="26" fill="#101F1C" stroke="#2FD4C4" stroke-width="2"/>
+          <line x1="9" y1="8" x2="23" y2="8" stroke="#7FEDE0" stroke-width="2"/>
+          <line x1="9" y1="14" x2="23" y2="14" stroke="#0F6158" stroke-width="1.5"/>
+          <line x1="9" y1="20" x2="19" y2="20" stroke="#2FD4C4" stroke-width="1.5"/>
+        </svg>
+        <span class="desktop-icon-label">How-It-Works.txt</span>
+      </div>
+
+      <!-- Snake Game Icon -->
+      <div class="desktop-icon" data-window="snake-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <rect x="3" y="3" width="26" height="26" fill="#000" stroke="#FF6A3D" stroke-width="2"/>
+          <path d="M8 8 H18 V16 H10 V24 H22" stroke="#2FD4C4" stroke-width="2.5" fill="none"/>
+          <rect x="20" y="22" width="4" height="4" fill="#FF6A3D"/>
+        </svg>
+        <span class="desktop-icon-label">Snake.exe</span>
+      </div>
+
+      <!-- CodeBreaker Memory Game Icon -->
+      <div class="desktop-icon" data-window="memory-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <rect x="4" y="4" width="11" height="11" fill="#101F1C" stroke="#2FD4C4" stroke-width="1.5"/>
+          <rect x="17" y="4" width="11" height="11" fill="#0F6158" stroke="#7FEDE0" stroke-width="1.5"/>
+          <rect x="4" y="17" width="11" height="11" fill="#0F6158" stroke="#7FEDE0" stroke-width="1.5"/>
+          <rect x="17" y="17" width="11" height="11" fill="#101F1C" stroke="#2FD4C4" stroke-width="1.5"/>
+        </svg>
+        <span class="desktop-icon-label">CodeBreaker.exe</span>
+      </div>
+
+      <!-- SysMon Icon -->
+      <div class="desktop-icon" data-window="sysmon-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <rect x="3" y="5" width="26" height="22" fill="#101F1C" stroke="#2FD4C4" stroke-width="2"/>
+          <path d="M6 18 L11 12 L16 20 L21 10 L26 18" stroke="#7FEDE0" stroke-width="2" fill="none"/>
+        </svg>
+        <span class="desktop-icon-label">SysMon.exe</span>
+      </div>
+
+      <!-- Terminal CLI Icon -->
+      <div class="desktop-icon" data-window="terminal-win">
+        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
+          <rect x="3" y="5" width="26" height="22" fill="#000" stroke="#7FEDE0" stroke-width="2"/>
+          <text x="6" y="17" fill="#2FD4C4" font-family="monospace" font-size="10" font-weight="bold">>_</text>
+        </svg>
+        <span class="desktop-icon-label">Terminal.exe</span>
+      </div>
+
+    </div>
+
+    <!-- 4. WINDOWS CONTAINER -->
+    <div id="windows-container">
+
+      <!-- MANIFESTO WINDOW -->
+      <div class="window" id="manifesto-win" style="top: 30px; left: 50px; width: 620px; height: 480px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <img src="assets/logo.png" class="window-title-icon" alt="Logo">
+            <span class="window-title-text">Manifesto.exe — Club Ethos</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="window-header">
+            <div class="window-eyebrow">St. Aloysius (Deemed to be University) — Student Coding Club</div>
+            <h2 class="window-h2">Fire was never meant to stay on the mountain.</h2>
+          </div>
+
+          <div class="manifesto-quote">
+            "Knowledge isn't handed down. <span>It's taken.</span>"
+          </div>
+
+          <p style="margin-bottom: 16px; opacity: 0.9;">
+            The myth isn't about theft — it's about refusing to let knowledge stay rationed. Prometheus runs on the same idea: technology shouldn't require permission, pedigree, or a head start to access. No prerequisite knowledge, no placement funnel, no gatekeeping. Pick a trail, show up, start making things.
+          </p>
+
+          <div class="tenets-grid">
+            <div class="tenet-card">
+              <div class="tenet-num">01 / TECH LITERACY</div>
+              <div class="tenet-title">Understand the machine</div>
+              <div class="tenet-desc">We teach how things work underneath, not just how to pass an interview. Curiosity about the "why" is the entry requirement — nothing else.</div>
+            </div>
+
+            <div class="tenet-card">
+              <div class="tenet-num">02 / NO GATEKEEPING</div>
+              <div class="tenet-title">Freedom of technology</div>
+              <div class="tenet-desc">No hidden hierarchy, no "ask a senior first." Whatever a mentor knows, a first-year should be able to reach for it on day one.</div>
+            </div>
+
+            <div class="tenet-card">
+              <div class="tenet-num">03 / SCRAPPY BY DESIGN</div>
+              <div class="tenet-title">Small, fast, unbureaucratic</div>
+              <div class="tenet-desc">Prometheus isn't a placement pipeline dressed up as a club. It's a small skunkworks team — built to move on curiosity, not calendar quotas.</div>
+            </div>
+          </div>
+          
+          <div class="faculty-credit" style="margin-top: 24px;">
+            FACULTY COORDINATOR — DR. GLENSON TONEY
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTS & HACKATHON BROWSER WINDOW -->
+      <div class="window" id="browser-win" style="top: 50px; left: 160px; width: 720px; height: 530px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">Browser.exe — Aloysius-Net Explorer</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+
+        <div class="browser-toolbar">
+          <button class="browser-btn">◄ Back</button>
+          <button class="browser-btn">► Forward</button>
+          <button class="browser-btn">↻ Refresh</button>
+          <input type="text" class="browser-address-bar" value="http://prometheus.aloysius.edu/events-and-hackathons" readonly>
+        </div>
+
+        <div class="window-body">
+          <div class="window-header">
+            <div class="window-eyebrow">Hackathon & Event Archives</div>
+            <h2 class="window-h2">Prometheus Student Builders in Action</h2>
+          </div>
+
+          <div class="gallery-grid">
+            <!-- Card 1 -->
+            <div class="gallery-card">
+              <img src="assets/hackathon_certificates.jpg" class="gallery-img" alt="National Hackathon Certificate of Excellence">
+              <div class="gallery-title">CodeSprint 2026 National Hackathon</div>
+              <div class="gallery-date">FEBRUARY 2026 — ALOYSIUS AUDITORIUM</div>
+              <div class="gallery-desc">Prometheus engineering teams awarded Certificate of Excellence at the 2026 National Level Hackathon.</div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="gallery-card">
+              <img src="assets/coding_session.jpg" class="gallery-img" alt="Deep Work Sprint">
+              <div class="gallery-title">Deep Work & Collaborative Sprint</div>
+              <div class="gallery-date">WEEKLY SESSIONS — ST. ALOYSIUS LAB</div>
+              <div class="gallery-desc">Students pair programming on web & backend trails, debugging real-world systems together.</div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="gallery-card">
+              <img src="assets/skunkworks_lab.jpg" class="gallery-img" alt="Skunkworks Hardware Lab">
+              <div class="gallery-title">Hardware & Skunkworks Lab</div>
+              <div class="gallery-date">JANUARY 2026 — INNOVATION CENTER</div>
+              <div class="gallery-desc">Hands-on microcontrollers, robotics builds, and embedded IoT prototype testing.</div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="gallery-card">
+              <img src="assets/classroom_dev.jpg" class="gallery-img" alt="Classroom Live Contest">
+              <div class="gallery-date">AUGUST 2026 — CS LAB</div>
+              <div class="gallery-title">Competitive Programming Contest</div>
+              <div class="gallery-desc">Time-pressured algorithmic challenge session with peer mentors assisting first-years.</div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="gallery-card">
+              <img src="assets/group_photo.png" class="gallery-img" alt="Community Team Victory">
+              <div class="gallery-title">Prometheus Community Gathering</div>
+              <div class="gallery-date">ST. ALOYSIUS UNIVERSITY</div>
+              <div class="gallery-desc">The skunkworks team celebrating project milestones with zero gatekeeping and high energy.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENTORS WINDOW -->
+      <div class="window" id="mentors-win" style="top: 80px; left: 220px; width: 640px; height: 480px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">Mentors.exe — Peer Mentors & Advisory</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="window-header">
+            <div class="window-eyebrow">Peer-Led Mentorship</div>
+            <h2 class="window-h2">Meet Your Prometheus Mentors</h2>
+          </div>
+
+          <div class="mentors-grid">
+            <div class="mentor-card">
+              <div class="mentor-avatar">GT</div>
+              <div class="mentor-name">Dr. Glenson Toney</div>
+              <div class="mentor-role">Faculty Coordinator</div>
+              <div class="mentor-trail-badge">CLUB ADVISOR</div>
+            </div>
+
+            <div class="mentor-card">
+              <div class="mentor-avatar">SA</div>
+              <div class="mentor-name">Samarth</div>
+              <div class="mentor-role">Peer Mentor</div>
+              <div class="mentor-trail-badge">WEB & BACKEND</div>
+            </div>
+
+            <div class="mentor-card">
+              <div class="mentor-avatar">RO</div>
+              <div class="mentor-name">Robin</div>
+              <div class="mentor-role">Peer Mentor</div>
+              <div class="mentor-trail-badge">COMPETITIVE PROG</div>
+            </div>
+
+            <div class="mentor-card">
+              <div class="mentor-avatar">SH</div>
+              <div class="mentor-name">Shreyas</div>
+              <div class="mentor-role">Peer Mentor</div>
+              <div class="mentor-trail-badge">MACHINE LEARNING</div>
+            </div>
+
+            <div class="mentor-card">
+              <div class="mentor-avatar">AN</div>
+              <div class="mentor-name">Ananya</div>
+              <div class="mentor-role">Peer Mentor</div>
+              <div class="mentor-trail-badge">APP DEVELOPMENT</div>
+            </div>
+
+            <div class="mentor-card">
+              <div class="mentor-avatar">NI</div>
+              <div class="mentor-name">Nihal</div>
+              <div class="mentor-role">Peer Mentor</div>
+              <div class="mentor-trail-badge">OPEN SOURCE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAIL PROGRESS TRACKER WINDOW -->
+      <div class="window" id="progress-win" style="top: 90px; left: 100px; width: 620px; height: 490px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">Progress.exe — Student Trail Dashboard</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="window-header">
+            <div class="window-eyebrow">Personal Trail Milestone Tracker</div>
+            <h2 class="window-h2">Track Completed Sessions & Challenges</h2>
+          </div>
+
+          <div class="tracker-summary">
+            <div>
+              <div style="font-family: var(--font-mono); font-size: 11px; color: var(--teal);">OVERALL TRAIL COMPLETION</div>
+              <div class="tracker-pct" id="tracker-pct-val">42%</div>
+            </div>
+            <div style="width: 60%;">
+              <div class="tracker-bar">
+                <div class="tracker-fill" id="tracker-fill-val"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="checklist-group">
+            <div class="checklist-item" data-done="true">
+              <div class="checklist-cb">✓</div>
+              <div><b>Fundamentals 01</b>: Logic building, CLI basics & Git setup</div>
+            </div>
+            <div class="checklist-item" data-done="true">
+              <div class="checklist-cb">✓</div>
+              <div><b>Web Dev 01</b>: HTML5 semantic tags & CSS grid layouts</div>
+            </div>
+            <div class="checklist-item" data-done="true">
+              <div class="checklist-cb">✓</div>
+              <div><b>Backend 01</b>: HTTP protocols, RESTful routes & Express basics</div>
+            </div>
+            <div class="checklist-item" data-done="false">
+              <div class="checklist-cb"></div>
+              <div><b>Machine Learning 01</b>: NumPy, Pandas & linear regression math</div>
+            </div>
+            <div class="checklist-item" data-done="false">
+              <div class="checklist-cb"></div>
+              <div><b>App Dev 01</b>: Mobile UI components & state management</div>
+            </div>
+            <div class="checklist-item" data-done="false">
+              <div class="checklist-cb"></div>
+              <div><b>Open Source 01</b>: Forking repos & submitting first Pull Request</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAILS WINDOW -->
+      <div class="window" id="trails-win" style="top: 70px; left: 140px; width: 680px; height: 500px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">Trails/ — 7 Specialized Tracks</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="window-header">
+            <div class="window-eyebrow">Self-select your path from day one</div>
+            <h2 class="window-h2">Learning Trails</h2>
+          </div>
+
+          <div class="trails-grid">
+            <div class="trail-card">
+              <div class="trail-tag">TRAIL — 01</div>
+              <div class="trail-name">Beginner / Fundamentals</div>
+              <div class="trail-desc">Never written a line of code? Start here. Logic, syntax, and mental models.</div>
+            </div>
+            <div class="trail-card">
+              <div class="trail-tag">TRAIL — 02</div>
+              <div class="trail-name">Web Development</div>
+              <div class="trail-desc">HTML to full-stack — ship real interfaces people can click on.</div>
+            </div>
+            <div class="trail-card">
+              <div class="trail-tag">TRAIL — 03</div>
+              <div class="trail-name">Backend Development</div>
+              <div class="trail-desc">Servers, databases, APIs — the plumbing that makes everything work.</div>
+            </div>
+            <div class="trail-card">
+              <div class="trail-tag">TRAIL — 04</div>
+              <div class="trail-name">Machine Learning</div>
+              <div class="trail-desc">Models, data, and the math underneath — from first principles.</div>
+            </div>
+            <div class="trail-card">
+              <div class="trail-tag">TRAIL — 05</div>
+              <div class="trail-name">App Development</div>
+              <div class="trail-desc">Mobile-first builds — from prototype to device.</div>
+            </div>
+            <div class="trail-card">
+              <div class="trail-tag">TRAIL — 06</div>
+              <div class="trail-name">Competitive Programming</div>
+              <div class="trail-desc">Algorithms under pressure — hackathons and contest problem sets.</div>
+            </div>
+            <div class="trail-card">
+              <div class="trail-tag">TRAIL — 07</div>
+              <div class="trail-name">Open Source Contribution</div>
+              <div class="trail-desc">Read real codebases, send pull requests, work in the open.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS WINDOW -->
+      <div class="window" id="howitworks-win" style="top: 100px; left: 200px; width: 600px; height: 460px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">How-It-Works.txt — Protocol</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="window-header">
+            <div class="window-eyebrow">Operating Instructions</div>
+            <h2 class="window-h2">Enrol. Pick trails. Show up.</h2>
+          </div>
+
+          <div class="how-steps">
+            <div class="how-step-row">
+              <div class="step-num">01</div>
+              <div>
+                <div class="step-title">Enrol as a student</div>
+                <div class="step-desc">Sign up and choose up to three trails that interest you. No screening test, no prior-experience requirement.</div>
+              </div>
+            </div>
+
+            <div class="how-step-row">
+              <div class="step-num">02</div>
+              <div>
+                <div class="step-title">Follow your trails</div>
+                <div class="step-desc">Mentors post announcements, session notices, notes, and resources directly to each trail. Pull what's useful, skip what isn't.</div>
+              </div>
+            </div>
+
+            <div class="how-step-row">
+              <div class="step-num">03</div>
+              <div>
+                <div class="step-title">Learn from mentors, not a syllabus</div>
+                <div class="step-desc">Sessions are peer-led by students who've been where you are. Ask questions a lecture hall doesn't leave room for.</div>
+              </div>
+            </div>
+
+            <div class="how-step-row">
+              <div class="step-num">04</div>
+              <div>
+                <div class="step-title">Grow into one</div>
+                <div class="step-desc">Stick around and know your trail well? Mentors can be promoted from within — Prometheus runs on people who came up through it.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SNAKE GAME WINDOW -->
+      <div class="window" id="snake-win" style="top: 40px; left: 180px; width: 380px; height: 440px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">Snake.exe — Flame Turtle Arcade</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div class="game-score-bar">
+            <span id="snake-score">SCORE: 0</span>
+            <span id="snake-high">HIGH: 0</span>
+          </div>
+          <canvas id="snake-canvas" class="snake-canvas" width="288" height="288"></canvas>
+          <div style="font-family: var(--font-mono); font-size: 10px; color: var(--teal-dim); margin-top: 8px;">Controls: Arrow Keys / WASD</div>
+        </div>
+      </div>
+
+      <!-- CODEBREAKER MEMORY GAME WINDOW -->
+      <div class="window" id="memory-win" style="top: 60px; left: 240px; width: 440px; height: 460px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">CodeBreaker.exe — Matrix Decoder</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div style="font-family: var(--font-mono); font-size: 11px; color: var(--teal-bright); margin-bottom: 12px;" id="memory-status">Decode all 8 tech pairs!</div>
+          <div class="card-match-grid" id="memory-card-grid"></div>
+        </div>
+      </div>
+
+      <!-- SYSTEM MONITOR WINDOW -->
+      <div class="window" id="sysmon-win" style="top: 110px; left: 260px; width: 480px; height: 380px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">SysMon.exe — Hardware & RAM Meter</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="window-header">
+            <div class="window-eyebrow">Real-Time System Metrics</div>
+            <h2 class="window-h2">Hardware Monitor</h2>
+          </div>
+
+          <div class="sysmon-grid">
+            <div class="gauge-box">
+              <div class="gauge-title">PHYSICAL MEMORY (RAM)</div>
+              <div class="gauge-val" id="sysmon-ram-val">324 MB / 1024 MB (31%)</div>
+              <div class="gauge-bar-wrap">
+                <div class="gauge-bar-fill" id="sysmon-ram-fill" style="width: 31%;"></div>
+              </div>
+            </div>
+
+            <div class="gauge-box">
+              <div class="gauge-title">CPU NEURAL LOAD</div>
+              <div class="gauge-val" id="sysmon-cpu-val">14% Load</div>
+              <div class="gauge-bar-wrap">
+                <div class="gauge-bar-fill" id="sysmon-cpu-fill" style="width: 14%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <table class="process-table">
+            <thead>
+              <tr>
+                <th>PID</th>
+                <th>PROCESS NAME</th>
+                <th>MEM USAGE</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>001</td>
+                <td>kernel_prometheus.sys</td>
+                <td>48 MB</td>
+                <td>RUNNING</td>
+              </tr>
+              <tr>
+                <td>002</td>
+                <td>gui_desktop_engine.dll</td>
+                <td>84 MB</td>
+                <td>ACTIVE</td>
+              </tr>
+              <tr>
+                <td>003</td>
+                <td>trails_skunkworks.exe</td>
+                <td>32 MB</td>
+                <td>IDLE</td>
+              </tr>
+              <tr>
+                <td>004</td>
+                <td>synth_audio_driver.sys</td>
+                <td>12 MB</td>
+                <td>STANDBY</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TERMINAL CLI WINDOW -->
+      <div class="window" id="terminal-win" style="top: 130px; left: 130px; width: 540px; height: 380px;">
+        <div class="window-title-bar">
+          <div class="window-title-left">
+            <span class="window-title-text">Terminal.exe — Interactive Shell</span>
+          </div>
+          <div class="window-controls">
+            <button class="window-btn min-btn">_</button>
+            <button class="window-btn max-btn">□</button>
+            <button class="window-btn close-btn">X</button>
+          </div>
+        </div>
+        <div class="window-body terminal-body">
+          <div class="terminal-output" id="terminal-cli-output">
+            <div>PROMETHEUS CLI v2.6 [St. Aloysius Skunkworks Shell]</div>
+            <div>Type 'help' to view available system commands.</div>
+            <div>--------------------------------------------------</div>
+          </div>
+          <div class="terminal-input-row">
+            <span class="terminal-prompt">guest@prometheus:~$</span>
+            <input type="text" class="terminal-input" id="terminal-cli-input" placeholder="type a command..." autofocus>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- 5. TASKBAR & START MENU -->
+  <div id="taskbar">
+
+    <div class="start-btn" id="start-btn">
+      <img src="assets/logo.png" class="start-logo-img" alt="Start Logo">
+      <span class="start-btn-text">PROMETHEUS</span>
+    </div>
+
+    <div class="taskbar-divider"></div>
+
+    <div class="taskbar-tabs" id="taskbar-tabs">
+      <!-- Active Window Tabs generated dynamically in script.js -->
+    </div>
+
+    <div class="taskbar-divider"></div>
+
+    <div class="tray-area">
+      <button class="tray-btn" id="tray-sound-btn" title="Toggle Synth Sound">
+        <span id="sound-icon" style="font-family: var(--font-mono); font-size: 9px;">VOL</span>
+      </button>
+      <button class="tray-btn" id="tray-replay-btn" title="Replay BIOS Boot Sequence">
+        <span style="font-family: var(--font-mono); font-size: 9px;">RST</span>
+      </button>
+      <div class="taskbar-clock" id="taskbar-clock">12:00:00 AM</div>
+    </div>
+
+  </div>
+
+  <!-- START MENU POPOVER -->
+  <div id="start-menu">
+    <div class="start-menu-header">
+      <img src="assets/logo.png" class="start-menu-logo" alt="Logo">
+      <div>
+        <div class="start-menu-title">PROMETHEUS OS</div>
+        <div style="font-family: var(--font-mono); font-size: 9px; color: #0A1614;">v2.6 Skunkworks</div>
+      </div>
+    </div>
+    <div class="start-menu-items">
+      <div class="start-menu-item" data-window="manifesto-win">📄 Manifesto.exe</div>
+      <div class="start-menu-item" data-window="trails-win">📁 Trails/</div>
+      <div class="start-menu-item" data-window="browser-win">🌐 Browser.exe (Events)</div>
+      <div class="start-menu-item" data-window="mentors-win">👥 Mentors.exe</div>
+      <div class="start-menu-item" data-window="progress-win">📊 Progress.exe</div>
+      <div class="start-menu-item" data-window="snake-win">🎮 Snake.exe</div>
+      <div class="start-menu-item" data-window="memory-win">🧩 CodeBreaker.exe</div>
+      <div class="start-menu-item" data-window="sysmon-win">⚡ SysMon.exe</div>
+      <div class="start-menu-item" data-window="terminal-win">💻 Terminal.exe</div>
+      <div class="start-menu-divider"></div>
+      <div class="start-menu-item" data-action="replay-boot">🔄 Replay BIOS Boot</div>
+      <div class="start-menu-item" data-action="toggle-sound">🔊 Toggle Sound FX</div>
+    </div>
+  </div>
+
+  <!-- 6. DESKTOP RIGHT-CLICK CONTEXT MENU -->
+  <div id="context-menu">
+    <div class="context-menu-item" data-action="refresh">⚡ Refresh Desktop</div>
+    <div class="context-menu-item" data-action="open-terminal">💻 Open Terminal</div>
+    <div class="context-menu-item" data-action="replay-boot">🔄 Replay BIOS Boot</div>
+    <div class="context-menu-item" data-action="about">ℹ️ About Prometheus</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
