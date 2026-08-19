@@ -65,23 +65,15 @@
   <!-- 3. DESKTOP ENVIRONMENT -->
   <div id="desktop">
 
+    <!-- Interactive Grid & Particle Canvas Background -->
+    <canvas id="bg-canvas"></canvas>
+    <canvas id="matrix-canvas"></canvas>
+
     <!-- Official Logo Wallpaper Watermark -->
     <img src="assets/logo.png" class="desktop-wallpaper-logo" alt="Prometheus Official Logo Watermark">
 
     <!-- Desktop Icons Grid -->
     <div class="desktop-icon-grid">
-
-      <!-- Manifesto Icon -->
-      <div class="desktop-icon" data-window="manifesto-win">
-        <svg class="desktop-icon-svg" viewBox="0 0 32 32">
-          <rect x="2" y="4" width="28" height="24" rx="2" fill="#101F1C" stroke="#2FD4C4" stroke-width="2"/>
-          <rect x="2" y="4" width="28" height="6" fill="#1B3B36"/>
-          <circle cx="6" cy="7" r="1.5" fill="#FF6A3D"/>
-          <circle cx="10" cy="7" r="1.5" fill="#7FEDE0"/>
-          <path d="M6 16 L10 19 L6 22" stroke="#2FD4C4" stroke-width="2" fill="none"/>
-        </svg>
-        <span class="desktop-icon-label">Manifesto.exe</span>
-      </div>
 
       <!-- Trails Folder Icon -->
       <div class="desktop-icon" data-window="trails-win">
@@ -179,59 +171,6 @@
     <!-- 4. WINDOWS CONTAINER -->
     <div id="windows-container">
 
-      <!-- MANIFESTO WINDOW -->
-      <div class="window" id="manifesto-win" style="top: 30px; left: 50px; width: 620px; height: 480px;">
-        <div class="window-title-bar">
-          <div class="window-title-left">
-            <img src="assets/logo.png" class="window-title-icon" alt="Logo">
-            <span class="window-title-text">Manifesto.exe — Club Ethos</span>
-          </div>
-          <div class="window-controls">
-            <button class="window-btn min-btn">_</button>
-            <button class="window-btn max-btn">□</button>
-            <button class="window-btn close-btn">X</button>
-          </div>
-        </div>
-        <div class="window-body">
-          <div class="window-header">
-            <div class="window-eyebrow">St. Aloysius (Deemed to be University) — Student Coding Club</div>
-            <h2 class="window-h2">Fire was never meant to stay on the mountain.</h2>
-          </div>
-
-          <div class="manifesto-quote">
-            "Knowledge isn't handed down. <span>It's taken.</span>"
-          </div>
-
-          <p style="margin-bottom: 16px; opacity: 0.9;">
-            The myth isn't about theft — it's about refusing to let knowledge stay rationed. Prometheus runs on the same idea: technology shouldn't require permission, pedigree, or a head start to access. No prerequisite knowledge, no placement funnel, no gatekeeping. Pick a trail, show up, start making things.
-          </p>
-
-          <div class="tenets-grid">
-            <div class="tenet-card">
-              <div class="tenet-num">01 / TECH LITERACY</div>
-              <div class="tenet-title">Understand the machine</div>
-              <div class="tenet-desc">We teach how things work underneath, not just how to pass an interview. Curiosity about the "why" is the entry requirement — nothing else.</div>
-            </div>
-
-            <div class="tenet-card">
-              <div class="tenet-num">02 / NO GATEKEEPING</div>
-              <div class="tenet-title">Freedom of technology</div>
-              <div class="tenet-desc">No hidden hierarchy, no "ask a senior first." Whatever a mentor knows, a first-year should be able to reach for it on day one.</div>
-            </div>
-
-            <div class="tenet-card">
-              <div class="tenet-num">03 / SCRAPPY BY DESIGN</div>
-              <div class="tenet-title">Small, fast, unbureaucratic</div>
-              <div class="tenet-desc">Prometheus isn't a placement pipeline dressed up as a club. It's a small skunkworks team — built to move on curiosity, not calendar quotas.</div>
-            </div>
-          </div>
-          
-          <div class="faculty-credit" style="margin-top: 24px;">
-            FACULTY COORDINATOR — DR. GLENSON TONEY
-          </div>
-        </div>
-      </div>
-
       <!-- EVENTS & HACKATHON BROWSER WINDOW -->
       <div class="window" id="browser-win" style="top: 50px; left: 160px; width: 720px; height: 530px;">
         <div class="window-title-bar">
@@ -307,24 +246,27 @@
 
           <div class="mentors-grid">
             <div class="mentor-card">
-              <div class="mentor-avatar">GT</div>
-              <div class="mentor-name">Dr. Glenson Toney</div>
+              <div class="mentor-avatar">MN</div>
+              <div class="mentor-name">Ms. Nishmitha</div>
               <div class="mentor-role">Faculty Coordinator</div>
-              <div class="mentor-trail-badge">CLUB ADVISOR</div>
+              <div class="mentor-trail-badge">CLUB COORDINATOR</div>
+              <div class="mentor-bio">Guiding Prometheus skunkworks & academic projects.</div>
             </div>
 
             <div class="mentor-card">
               <div class="mentor-avatar">CP</div>
               <div class="mentor-name">Cyrus</div>
               <div class="mentor-role">President</div>
-              <div class="mentor-trail-badge">PRESIDENT</div>
+              <div class="mentor-trail-badge">PRESIDENT & LEAD ARCHITECT</div>
+              <div class="mentor-bio">Full-stack systems, kernel architecture & algorithms.</div>
             </div>
 
             <div class="mentor-card">
               <div class="mentor-avatar">AA</div>
               <div class="mentor-name">Aaron</div>
               <div class="mentor-role">Vice President</div>
-              <div class="mentor-trail-badge">VICE PRESIDENT</div>
+              <div class="mentor-trail-badge">VICE PRESIDENT & AI LEAD</div>
+              <div class="mentor-bio">Deep learning, neural models & hackathon sprints.</div>
             </div>
           </div>
         </div>
@@ -577,6 +519,11 @@
             </div>
           </div>
 
+          <div style="margin-bottom: 12px;">
+            <div class="gauge-title" style="margin-bottom: 4px;">SYSTEM METRICS HISTORY (60s)</div>
+            <canvas id="sysmon-chart" height="50" style="width: 100%; background: #0A1614; border: 1px solid var(--border); border-radius: 2px;"></canvas>
+          </div>
+
           <table class="process-table">
             <thead>
               <tr>
@@ -643,6 +590,45 @@
 
     </div>
 
+    <!-- 4.4 RIGHT SIDEBAR SYSTEM MONITOR GADGET -->
+    <div id="sysmon-gadget" class="sysmon-gadget-box" title="Click to open full System Monitor">
+      <div class="gadget-header">
+        <span class="gadget-title">SYSMON v2.6</span>
+        <span class="gadget-dot"></span>
+      </div>
+      <div class="gadget-body">
+        <div class="gadget-metric">
+          <div class="gadget-label">CPU LOAD</div>
+          <div class="gadget-value" id="gadget-cpu-val">14%</div>
+          <div class="gadget-bar-bg">
+            <div class="gadget-bar-fill" id="gadget-cpu-bar" style="width: 14%;"></div>
+          </div>
+        </div>
+        <div class="gadget-metric">
+          <div class="gadget-label">RAM USAGE</div>
+          <div class="gadget-value" id="gadget-ram-val">324 MB</div>
+          <div class="gadget-bar-bg">
+            <div class="gadget-bar-fill" id="gadget-ram-bar" style="width: 31%;"></div>
+          </div>
+        </div>
+        <div class="gadget-metric">
+          <div class="gadget-label">REAL-TIME LOAD</div>
+          <canvas id="gadget-sparkline" width="150" height="30"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.5 DESKTOP PET MASCOT COMPANION -->
+    <div id="desktop-pet" class="desktop-pet-container" title="Prometheus Mascot Companion — Drag me or watch me walk!">
+      <div class="pet-speech-bubble" id="pet-speech-bubble">Prometheus Companion online 🔥</div>
+      <div class="pet-avatar-wrap" id="pet-avatar-wrap">
+        <div class="pet-sprite-container">
+          <img src="assets/logo.png" alt="Mascot Pet" class="pet-img" id="pet-img">
+        </div>
+        <div class="pet-shadow" id="pet-shadow"></div>
+      </div>
+    </div>
+
   </div>
 
   <!-- 5. TASKBAR & START MENU -->
@@ -662,6 +648,10 @@
     <div class="taskbar-divider"></div>
 
     <div class="tray-area">
+      <canvas id="audio-viz" width="36" height="18" style="background: #0A1614; border: 1px solid var(--border); border-radius: 2px;" title="Audio Synthesizer Spectrum"></canvas>
+      <button class="tray-btn" id="tray-matrix-btn" title="Toggle Matrix Digital Rain">
+        <span style="font-family: var(--font-mono); font-size: 9px; color: #7FEDE0;">MTX</span>
+      </button>
       <button class="tray-btn" id="tray-sound-btn" title="Toggle Synth Sound">
         <span id="sound-icon" style="font-family: var(--font-mono); font-size: 9px;">VOL</span>
       </button>
@@ -683,7 +673,6 @@
       </div>
     </div>
     <div class="start-menu-items">
-      <div class="start-menu-item" data-window="manifesto-win">📄 Manifesto.exe</div>
       <div class="start-menu-item" data-window="trails-win">📁 Trails/</div>
       <div class="start-menu-item" data-window="browser-win">🌐 Browser.exe (Events)</div>
       <div class="start-menu-item" data-window="mentors-win">👥 Mentors.exe</div>
@@ -704,6 +693,15 @@
     <div class="context-menu-item" data-action="open-terminal">💻 Open Terminal</div>
     <div class="context-menu-item" data-action="replay-boot">🔄 Replay BIOS Boot</div>
     <div class="context-menu-item" data-action="about">ℹ️ About Prometheus</div>
+  </div>
+
+  <!-- 7. HD PHOTO LIGHTBOX MODAL -->
+  <div id="lightbox-modal">
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightbox-close">&times;</button>
+      <img src="" id="lightbox-img" alt="Enlarged Event View">
+      <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
   </div>
 
   <script src="script.js"></script>

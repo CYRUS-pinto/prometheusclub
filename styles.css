@@ -329,24 +329,49 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
     var(--bg-base);
 }
 
+/* Interactive Canvas Background Layer */
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#matrix-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#matrix-canvas.active {
+  opacity: 0.85;
+}
+
 /* Desktop Background Official Logo Watermark */
 .desktop-wallpaper-logo {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 280px;
-  height: 280px;
-  opacity: 0.06;
+  width: 320px;
+  height: 320px;
+  opacity: 0.14;
   pointer-events: none;
   z-index: 1;
-  filter: grayscale(0.3) drop-shadow(0 0 25px rgba(47, 212, 196, 0.15));
+  filter: drop-shadow(0 0 30px rgba(47, 212, 196, 0.25));
   animation: logoBreathe 10s infinite ease-in-out;
 }
 
 @keyframes logoBreathe {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.06; }
-  50% { transform: translate(-50%, -50%) scale(1.02); opacity: 0.09; }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.14; }
+  50% { transform: translate(-50%, -50%) scale(1.03); opacity: 0.20; }
 }
 
 /* Desktop Grid */
@@ -432,12 +457,14 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
 .window {
   position: absolute;
   pointer-events: auto;
-  background-color: var(--panel);
+  background-color: rgba(16, 31, 28, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 2px solid var(--border);
   box-shadow: 
-    inset 1px 1px 0px rgba(127, 237, 224, 0.15),
+    inset 1px 1px 0px rgba(127, 237, 224, 0.18),
     inset -1px -1px 0px rgba(0, 0, 0, 0.6),
-    6px 6px 20px rgba(0, 0, 0, 0.8);
+    8px 12px 30px rgba(0, 0, 0, 0.85);
   min-width: 320px;
   min-height: 240px;
   display: flex;
@@ -654,7 +681,8 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  transition: border-color 0.2s, transform 0.2s;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .gallery-card:hover {
@@ -761,6 +789,16 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   padding: 2px 8px;
   border-radius: 2px;
   margin-top: 4px;
+}
+
+.mentor-bio {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--cream);
+  opacity: 0.85;
+  text-align: center;
+  margin-top: 6px;
+  line-height: 1.4;
 }
 
 /* TRAIL PROGRESS TRACKER */
@@ -889,6 +927,59 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
 .process-table th {
   background: var(--teal-dim);
   color: var(--cream);
+}
+
+/* TERMINAL CLI SHELL WINDOW STYLING */
+.terminal-body {
+  background-color: #050D0C !important;
+  color: #7FEDE0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 32px);
+  padding: 12px !important;
+  box-sizing: border-box;
+}
+
+.terminal-output {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.terminal-output div {
+  margin-bottom: 4px;
+}
+
+.terminal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 31, 28, 0.9);
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  border-radius: 2px;
+}
+
+.terminal-prompt {
+  color: var(--teal);
+  font-weight: bold;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #FFF;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  caret-color: var(--teal-bright);
 }
 
 /* GAMES WINDOWS */
@@ -1230,4 +1321,402 @@ body, button, a, input, select, textarea, .desktop-icon, .window-title-bar {
   .sysmon-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==========================================================================
+   8. HD PHOTO LIGHTBOX MODAL
+   ========================================================================== */
+#lightbox-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(10, 22, 20, 0.92);
+  backdrop-filter: blur(16px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#lightbox-modal.open {
+  display: flex;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 85vh;
+  border: 2px solid var(--teal);
+  box-shadow: 0 0 35px rgba(47, 212, 196, 0.4), 0 10px 40px rgba(0,0,0,0.9);
+  background: var(--panel);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#lightbox-img {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  border: 1px solid var(--border);
+}
+
+.lightbox-caption {
+  margin-top: 10px;
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  color: var(--teal-bright);
+  text-align: center;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 30px;
+  height: 30px;
+  background: var(--flame);
+  color: #FFF;
+  border: 2px solid var(--cream);
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 12px rgba(255, 106, 61, 0.5);
+  transition: transform 0.15s;
+}
+
+.lightbox-close:hover {
+  transform: scale(1.15);
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ==========================================================================
+   9. RIGHT SIDEBAR SYSTEM MONITOR GADGET (DESKTOP GADGET)
+   ========================================================================== */
+.sysmon-gadget-box {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 170px;
+  background: rgba(16, 31, 28, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), inset 0 0 10px rgba(47, 212, 196, 0.1);
+  padding: 10px;
+  z-index: 15;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sysmon-gadget-box:hover {
+  border-color: var(--teal);
+  box-shadow: 0 0 16px rgba(47, 212, 196, 0.3), inset 0 0 15px rgba(47, 212, 196, 0.15);
+  transform: translateY(-2px);
+}
+
+.gadget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.gadget-title {
+  font-family: var(--font-pixel);
+  font-size: 8.5px;
+  color: var(--teal-bright);
+  letter-spacing: 0.08em;
+}
+
+.gadget-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--teal);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--teal-bright);
+  animation: dotPulse 2s infinite ease-in-out;
+}
+
+.gadget-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gadget-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gadget-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  color: var(--teal);
+}
+
+.gadget-value {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  color: var(--cream);
+}
+
+.gadget-bar-bg {
+  height: 6px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.gadget-bar-fill {
+  height: 100%;
+  background: var(--teal);
+  box-shadow: 0 0 6px var(--teal);
+  transition: width 0.4s ease;
+}
+
+/* ==========================================================================
+   10. DESKTOP MASCOT COMPANION BOT (CLAUDE-STYLE BLINKING & WALKING)
+   ========================================================================== */
+.desktop-pet-container {
+  position: absolute;
+  bottom: 42px;
+  right: 210px;
+  width: 110px;
+  height: 115px;
+  z-index: 7000;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  transition: transform 0.25s ease, left 0.6s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.5, 0, 0.75, 0);
+}
+
+.desktop-pet-container.dragging {
+  cursor: grabbing;
+  transition: none !important;
+}
+
+.desktop-pet-container.walking .pet-avatar-wrap {
+  animation: petWalkBob 0.32s infinite alternate ease-in-out;
+}
+
+.desktop-pet-container.facing-left .pet-sprite-container {
+  transform: scaleX(-1);
+}
+
+.pet-avatar-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pet-sprite-container {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+
+.pet-img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(47, 212, 196, 0.55)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.85));
+  transition: transform 0.25s ease, filter 0.25s ease;
+  pointer-events: none;
+}
+
+.desktop-pet-container:hover .pet-img {
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 25px rgba(127, 237, 224, 0.95)) drop-shadow(0 0 35px rgba(255, 106, 61, 0.65));
+}
+
+.pet-shadow {
+  position: absolute;
+  bottom: -4px;
+  width: 68px;
+  height: 11px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  filter: blur(2.5px);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.desktop-pet-container:hover .pet-shadow {
+  transform: scale(0.8);
+  opacity: 0.4;
+}
+
+/* Retro Speech Bubble */
+.pet-speech-bubble {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: rgba(16, 31, 28, 0.96);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--teal);
+  box-shadow: 0 0 18px rgba(47, 212, 196, 0.4), 0 4px 14px rgba(0,0,0,0.85);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: var(--font-pixel);
+  font-size: 9.5px;
+  color: var(--teal-bright);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 7005;
+}
+
+.pet-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--teal);
+}
+
+.pet-speech-bubble.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) scale(1);
+}
+
+@keyframes petWalkBob {
+  0% { transform: translateY(0) rotate(-4deg); }
+  100% { transform: translateY(-7px) rotate(4deg); }
+}
+
+/* ==========================================================================
+   MOBILE, TABLET & RESPONSIVE DEVICE MEDIA QUERIES
+   ========================================================================== */
+@media (max-width: 900px) {
+  .sysmon-gadget-box {
+    display: none;
+  }
+
+  .desktop-icon-grid {
+    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .window {
+    width: 94vw !important;
+    left: 3vw !important;
+    top: 30px !important;
+    max-height: 80vh !important;
+  }
+
+  .desktop-pet-container {
+    bottom: 50px;
+    right: 15px;
+    width: 70px;
+    height: 75px;
+  }
+
+  .pet-sprite-container, .pet-img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .pet-avatar-wrap {
+    width: 65px;
+    height: 65px;
+  }
+
+  .pet-shadow {
+    width: 48px;
+  }
+
+  .start-menu {
+    width: 90vw;
+    left: 5vw;
+    bottom: 45px;
+  }
+}
+
+@media (max-width: 600px) {
+  .window-title-text {
+    font-size: 11px;
+  }
+
+  .window-btn {
+    width: 26px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .mentors-grid, .trails-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .taskbar-brand span {
+    display: none;
+  }
+}
+
+/* Animations */
+@keyframes petFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes petWalkBob {
+  0% { transform: translateY(0) rotate(-3deg); }
+  100% { transform: translateY(-6px) rotate(3deg); }
+}
+
+@keyframes footStep {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+
+@keyframes petWobble {
+  0%, 100% { transform: scale(1.2) rotate(-8deg); }
+  50% { transform: scale(1.25) rotate(8deg); }
+}
+
+@keyframes petBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-16px) scale(1.15, 0.85); }
+  70% { transform: translateY(4px) scale(0.9, 1.1); }
+}
+
+@keyframes petSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.3); }
+  100% { transform: rotate(360deg) scale(1); }
 }

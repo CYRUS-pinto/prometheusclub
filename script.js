@@ -104,7 +104,7 @@
       "Detecting Primary Master ... PROMETHEUS_OS_KERNEL.SYS",
       "Loading Logo Watermark Module ... [assets/logo.png] OK",
       "Loading Trails Module [Web, Backend, ML, AppDev, CP, OSS] ... OK",
-      "Initializing Peer Mentor Registry [Dr. Glenson Toney & Team] ... OK",
+      "Initializing Peer Mentor Registry [Ms. Nishmitha & Team] ... OK",
       "Mounting Hackathon Event Gallery & Browser ... OK",
       "Launching Prometheus Desktop Environment..."
     ],
@@ -284,12 +284,27 @@
           icons.forEach(i => i.classList.remove('selected'));
         }
       });
+
+      // Global Keyboard Hotkeys
+      window.addEventListener('keydown', (e) => {
+        // Alt + Tab: Cycle through open windows
+        if (e.altKey && e.key === 'Tab') {
+          e.preventDefault();
+          const openIds = Object.keys(this.windows).filter(id => this.windows[id].isOpen && !this.windows[id].isMinimized);
+          if (openIds.length > 1) {
+            const currentIdx = openIds.indexOf(this.activeWindowId);
+            const nextIdx = (currentIdx + 1) % openIds.length;
+            this.bringToFront(openIds[nextIdx]);
+            AudioFX.playBeep(900, 0.04, 'sine');
+          }
+        }
+      });
     },
 
     openDefaultWindows() {
-      // Auto open Manifesto & Events Browser on boot
-      this.openWindow('manifesto-win');
-      setTimeout(() => this.openWindow('browser-win'), 300);
+      // Auto open Events Browser & Trails on boot
+      this.openWindow('browser-win');
+      setTimeout(() => this.openWindow('trails-win'), 300);
     },
 
     openWindow(id) {
@@ -377,26 +392,35 @@
       let isDragging = false;
       let startX, startY, startLeft, startTop;
 
+      const startDrag = (clientX, clientY) => {
+        isDragging = true;
+        startX = clientX;
+        startY = clientY;
+        startLeft = winEl.offsetLeft;
+        startTop = winEl.offsetTop;
+      };
+
+      const moveDrag = (clientX, clientY) => {
+        if (!isDragging) return;
+        const dx = clientX - startX;
+        const dy = clientY - startY;
+        winEl.style.left = Math.max(0, Math.min(window.innerWidth - 100, startLeft + dx)) + 'px';
+        winEl.style.top = Math.max(0, Math.min(window.innerHeight - 80, startTop + dy)) + 'px';
+      };
+
+      const stopDrag = () => {
+        isDragging = false;
+      };
+
       handleEl.addEventListener('mousedown', (e) => {
         if (window.innerWidth <= 700) return;
         if (e.target.closest('.window-btn')) return;
 
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        startLeft = winEl.offsetLeft;
-        startTop = winEl.offsetTop;
+        startDrag(e.clientX, e.clientY);
 
-        const onMouseMove = (moveEvent) => {
-          if (!isDragging) return;
-          const dx = moveEvent.clientX - startX;
-          const dy = moveEvent.clientY - startY;
-          winEl.style.left = Math.max(0, Math.min(window.innerWidth - 100, startLeft + dx)) + 'px';
-          winEl.style.top = Math.max(0, Math.min(window.innerHeight - 80, startTop + dy)) + 'px';
-        };
-
+        const onMouseMove = (moveEvent) => moveDrag(moveEvent.clientX, moveEvent.clientY);
         const onMouseUp = () => {
-          isDragging = false;
+          stopDrag();
           document.removeEventListener('mousemove', onMouseMove);
           document.removeEventListener('mouseup', onMouseUp);
         };
@@ -404,7 +428,25 @@
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
       });
-    }
+
+      // Touch Drag Support for Phones and Tablets
+      handleEl.addEventListener('touchstart', (e) => {
+        if (e.target.closest('.window-btn')) return;
+        const touch = e.touches[0];
+        if (touch) {
+          startDrag(touch.clientX, touch.clientY);
+        }
+      }, { passive: true });
+
+      handleEl.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        if (touch && isDragging) {
+          moveDrag(touch.clientX, touch.clientY);
+        }
+      }, { passive: true });
+
+      handleEl.addEventListener('touchend', () => stopDrag(), { passive: true });
+    },
   };
 
   // 4. TASKBAR & START MENU CONTROLLER
@@ -524,9 +566,17 @@
     }
   };
 
-  // 5. SYSTEM MONITOR ENGINE (Live RAM & CPU Meter)
+  // 5. SYSTEM MONITOR ENGINE (Live RAM & CPU Meter & Sidebar Gadget)
   const SysMonEngine = {
     init() {
+      // Gadget click to open full SysMon window
+      const gadgetBox = document.getElementById('sysmon-gadget');
+      if (gadgetBox) {
+        gadgetBox.addEventListener('click', () => {
+          WindowManager.openWindow('sysmon-win');
+        });
+      }
+
       setInterval(() => {
         // RAM gauge simulation (280MB to 420MB out of 1024MB)
         const ramUsed = 280 + Math.floor(Math.random() * 120);
@@ -536,37 +586,60 @@
         if (ramVal) ramVal.textContent = `${ramUsed} MB / 1024 MB (${ramPct}%)`;
         if (ramFill) ramFill.style.width = ramPct + '%';
 
+        // Update Right Sidebar Gadget RAM
+        const gRamVal = document.getElementById('gadget-ram-val');
+        const gRamBar = document.getElementById('gadget-ram-bar');
+        if (gRamVal) gRamVal.textContent = `${ramUsed} MB`;
+        if (gRamBar) gRamBar.style.width = ramPct + '%';
+
         // CPU gauge simulation (8% to 45%)
         const cpuPct = 8 + Math.floor(Math.random() * 37);
         const cpuVal = document.getElementById('sysmon-cpu-val');
         const cpuFill = document.getElementById('sysmon-cpu-fill');
         if (cpuVal) cpuVal.textContent = `${cpuPct}% Load`;
         if (cpuFill) cpuFill.style.width = cpuPct + '%';
+
+        // Update Right Sidebar Gadget CPU
+        const gCpuVal = document.getElementById('gadget-cpu-val');
+        const gCpuBar = document.getElementById('gadget-cpu-bar');
+        if (gCpuVal) gCpuVal.textContent = `${cpuPct}%`;
+        if (gCpuBar) gCpuBar.style.width = cpuPct + '%';
       }, 2000);
     }
   };
 
-  // 6. TRAIL PROGRESS TRACKER ENGINE
+  // 6. TRAIL PROGRESS TRACKER ENGINE (WITH LOCALSTORAGE PERSISTENCE)
   const TrailTrackerEngine = {
     init() {
+      const saved = JSON.parse(localStorage.getItem('prometheus_trail_progress') || '{}');
       const checkboxes = document.querySelectorAll('.checklist-cb');
-      checkboxes.forEach(cb => {
+      checkboxes.forEach((cb, idx) => {
+        const item = cb.closest('.checklist-item');
+        if (saved[idx] !== undefined) {
+          item.setAttribute('data-done', saved[idx] ? 'true' : 'false');
+          cb.textContent = saved[idx] ? '✓' : '';
+        }
         cb.addEventListener('click', () => {
-          const item = cb.closest('.checklist-item');
           const isDone = item.getAttribute('data-done') === 'true';
-          item.setAttribute('data-done', isDone ? 'false' : 'true');
-          cb.textContent = isDone ? '' : '✓';
+          const nextState = !isDone;
+          item.setAttribute('data-done', nextState ? 'true' : 'false');
+          cb.textContent = nextState ? '✓' : '';
           this.updateProgress();
-          AudioFX.playBeep(isDone ? 350 : 750, 0.05, 'sine');
+          AudioFX.playBeep(nextState ? 750 : 350, 0.05, 'sine');
         });
       });
+      this.updateProgress();
     },
     updateProgress() {
       const items = document.querySelectorAll('.checklist-item');
       let doneCount = 0;
-      items.forEach(item => {
-        if (item.getAttribute('data-done') === 'true') doneCount++;
+      const stateObj = {};
+      items.forEach((item, idx) => {
+        const isDone = item.getAttribute('data-done') === 'true';
+        stateObj[idx] = isDone;
+        if (isDone) doneCount++;
       });
+      localStorage.setItem('prometheus_trail_progress', JSON.stringify(stateObj));
       const pct = Math.floor((doneCount / items.length) * 100);
       const pctEl = document.getElementById('tracker-pct-val');
       const fillEl = document.getElementById('tracker-fill-val');
@@ -767,22 +840,42 @@
 
       switch (cmd) {
         case 'help':
-          resLine.innerHTML = `Available Commands:<br>- <b>manifesto</b>: Print club ethos<br>- <b>trails</b>: List learning tracks<br>- <b>mentors</b>: Peer mentor list<br>- <b>events</b>: View hackathons<br>- <b>whoami</b>: Current user role<br>- <b>clear</b>: Clear screen`;
-          break;
-        case 'manifesto':
-          resLine.textContent = "Knowledge isn't handed down. It's taken. Prometheus runs on tech literacy and no gatekeeping.";
+          resLine.innerHTML = `Available Commands:<br>- <b>trails</b>: List learning tracks<br>- <b>mentors</b>: Peer mentor list<br>- <b>events</b>: View hackathons<br>- <b>matrix</b>: Toggle Matrix digital rain<br>- <b>sysmon</b>: Open System Monitor<br>- <b>snake</b>: Launch Snake Arcade<br>- <b>game</b>: Launch CodeBreaker<br>- <b>whoami</b>: Current user role<br>- <b>reboot</b>: Replay BIOS boot sequence<br>- <b>clear</b>: Clear terminal screen`;
           break;
         case 'trails':
           resLine.textContent = "Trails: [01] Fundamentals [02] Web [03] Backend [04] ML [05] AppDev [06] CP [07] Open Source";
           break;
         case 'mentors':
-          resLine.textContent = "Team: Dr. Glenson Toney (Faculty Coordinator), Cyrus (President), Aaron (Vice President)";
+          resLine.textContent = "Team: Ms. Nishmitha (Faculty Coordinator), Cyrus (President), Aaron (Vice President)";
           break;
         case 'events':
           resLine.textContent = "Events: CodeSprint 2026 National Hackathon, Skunkworks Hardware Lab, Deep Work Sprints";
           break;
+        case 'matrix':
+          MatrixRainController.toggle();
+          resLine.textContent = "Matrix digital rain toggled.";
+          break;
+        case 'sysmon':
+          WindowManager.openWindow('sysmon-win');
+          resLine.textContent = "SysMon.exe launched.";
+          break;
+        case 'snake':
+          WindowManager.openWindow('snake-win');
+          resLine.textContent = "Snake.exe launched.";
+          break;
+        case 'game':
+          WindowManager.openWindow('memory-win');
+          resLine.textContent = "CodeBreaker.exe launched.";
+          break;
         case 'whoami':
           resLine.textContent = "guest_coder (Permissions: Full Skunkworks Access)";
+          break;
+        case 'sudo':
+          resLine.textContent = "Access Granted: Welcome Skunkworks Administrator.";
+          break;
+        case 'reboot':
+          BootController.replayBoot();
+          resLine.textContent = "Rebooting system...";
           break;
         case 'clear':
           output.innerHTML = '';
@@ -828,10 +921,571 @@
           } else if (action === 'open-terminal') {
             WindowManager.openWindow('terminal-win');
           } else if (action === 'about') {
-            WindowManager.openWindow('manifesto-win');
+            WindowManager.openWindow('browser-win');
           }
         });
       });
+    }
+  };
+
+  // 11. BACKGROUND CANVAS PARTICLES & GRID CONTROLLER
+  const BackgroundCanvasController = {
+    canvas: null,
+    ctx: null,
+    particles: [],
+    mouse: { x: null, y: null },
+
+    init() {
+      this.canvas = document.getElementById('bg-canvas');
+      if (!this.canvas) return;
+      this.ctx = this.canvas.getContext('2d');
+      this.resize();
+
+      window.addEventListener('resize', () => this.resize());
+      window.addEventListener('mousemove', (e) => {
+        this.mouse.x = e.clientX;
+        this.mouse.y = e.clientY;
+      });
+
+      this.createParticles();
+      this.animate();
+    },
+
+    resize() {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    },
+
+    createParticles() {
+      const count = Math.floor((window.innerWidth * window.innerHeight) / 18000);
+      this.particles = [];
+      for (let i = 0; i < count; i++) {
+        this.particles.push({
+          x: Math.random() * this.canvas.width,
+          y: Math.random() * this.canvas.height,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          size: Math.random() * 1.8 + 0.8
+        });
+      }
+    },
+
+    animate() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      // Draw subtle grid lines
+      this.ctx.strokeStyle = 'rgba(27, 59, 54, 0.15)';
+      this.ctx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < this.canvas.width; x += gridSize) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, 0);
+        this.ctx.lineTo(x, this.canvas.height);
+        this.ctx.stroke();
+      }
+      for (let y = 0; y < this.canvas.height; y += gridSize) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, y);
+        this.ctx.lineTo(this.canvas.width, y);
+        this.ctx.stroke();
+      }
+
+      // Draw & update particles
+      for (let i = 0; i < this.particles.length; i++) {
+        const p = this.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = this.canvas.width;
+        if (p.x > this.canvas.width) p.x = 0;
+        if (p.y < 0) p.y = this.canvas.height;
+        if (p.y > this.canvas.height) p.y = 0;
+
+        this.ctx.fillStyle = 'rgba(47, 212, 196, 0.4)';
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Connect nearby particles
+        for (let j = i + 1; j < this.particles.length; j++) {
+          const p2 = this.particles[j];
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            this.ctx.strokeStyle = `rgba(47, 212, 196, ${0.15 * (1 - dist / 100)})`;
+            this.ctx.beginPath();
+            this.ctx.moveTo(p.x, p.y);
+            this.ctx.lineTo(p2.x, p2.y);
+            this.ctx.stroke();
+          }
+        }
+
+        // Connect to mouse cursor
+        if (this.mouse.x && this.mouse.y) {
+          const dx = p.x - this.mouse.x;
+          const dy = p.y - this.mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            this.ctx.strokeStyle = `rgba(127, 237, 224, ${0.35 * (1 - dist / 130)})`;
+            this.ctx.beginPath();
+            this.ctx.moveTo(p.x, p.y);
+            this.ctx.lineTo(this.mouse.x, this.mouse.y);
+            this.ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(() => this.animate());
+    }
+  };
+
+  // 12. SYSMON SPARKLINE CHART CONTROLLER
+  const SysMonChartController = {
+    canvas: null,
+    ctx: null,
+    history: [],
+    maxPoints: 30,
+
+    init() {
+      this.canvas = document.getElementById('sysmon-chart');
+      if (!this.canvas) return;
+      this.ctx = this.canvas.getContext('2d');
+      for (let i = 0; i < this.maxPoints; i++) {
+        this.history.push(20 + Math.floor(Math.random() * 15));
+      }
+      setInterval(() => this.update(), 1000);
+      this.render();
+    },
+
+    update() {
+      const last = this.history[this.history.length - 1];
+      const next = Math.max(10, Math.min(85, last + (Math.floor(Math.random() * 15) - 7)));
+      this.history.push(next);
+      if (this.history.length > this.maxPoints) this.history.shift();
+      this.render();
+    },
+
+    render() {
+      if (!this.canvas || !this.ctx) return;
+      const w = this.canvas.width = this.canvas.clientWidth;
+      const h = this.canvas.height = this.canvas.clientHeight;
+
+      this.ctx.clearRect(0, 0, w, h);
+      this.ctx.fillStyle = '#0A1614';
+      this.ctx.fillRect(0, 0, w, h);
+
+      if (this.history.length < 2) return;
+
+      const step = w / (this.maxPoints - 1);
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, h - (this.history[0] / 100) * h);
+
+      for (let i = 1; i < this.history.length; i++) {
+        const x = i * step;
+        const y = h - (this.history[i] / 100) * h;
+        this.ctx.lineTo(x, y);
+      }
+
+      this.ctx.strokeStyle = '#2FD4C4';
+      this.ctx.lineWidth = 2;
+      this.ctx.stroke();
+
+      // Fill area under line
+      this.ctx.lineTo(w, h);
+      this.ctx.lineTo(0, h);
+      this.ctx.closePath();
+      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(47, 212, 196, 0.35)');
+      grad.addColorStop(1, 'rgba(47, 212, 196, 0.0)');
+      this.ctx.fillStyle = grad;
+      this.ctx.fill();
+    }
+  };
+
+  // 13. AUDIO VISUALIZER SPECTRUM CONTROLLER
+  const AudioVizController = {
+    canvas: null,
+    ctx: null,
+
+    init() {
+      this.canvas = document.getElementById('audio-viz');
+      if (!this.canvas) return;
+      this.ctx = this.canvas.getContext('2d');
+      this.animate();
+    },
+
+    animate() {
+      if (!this.canvas || !this.ctx) return;
+      const w = this.canvas.width;
+      const h = this.canvas.height;
+
+      this.ctx.clearRect(0, 0, w, h);
+
+      const bars = 6;
+      const barW = (w - (bars - 1) * 2) / bars;
+
+      for (let i = 0; i < bars; i++) {
+        let val;
+        if (AudioFX.enabled) {
+          val = Math.random() * (h - 3) + 3;
+        } else {
+          val = 2;
+        }
+        const x = i * (barW + 2);
+        const y = h - val;
+
+        this.ctx.fillStyle = AudioFX.enabled ? '#7FEDE0' : '#0F6158';
+        this.ctx.fillRect(x, y, barW, val);
+      }
+
+      setTimeout(() => requestAnimationFrame(() => this.animate()), 120);
+    }
+  };
+
+  // 14. LIGHTBOX MODAL CONTROLLER
+  const LightboxController = {
+    modal: null,
+    img: null,
+    caption: null,
+
+    init() {
+      this.modal = document.getElementById('lightbox-modal');
+      this.img = document.getElementById('lightbox-img');
+      this.caption = document.getElementById('lightbox-caption');
+      const closeBtn = document.getElementById('lightbox-close');
+
+      if (!this.modal) return;
+
+      const galleryCards = document.querySelectorAll('.gallery-card');
+      galleryCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const cardImg = card.querySelector('.gallery-img');
+          const cardTitle = card.querySelector('.gallery-title');
+          if (cardImg) {
+            this.img.src = cardImg.src;
+            this.caption.textContent = cardTitle ? cardTitle.textContent : '';
+            this.modal.classList.add('open');
+            AudioFX.playBeep(900, 0.06, 'sine');
+          }
+        });
+      });
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => this.close());
+      }
+
+      this.modal.addEventListener('click', (e) => {
+        if (e.target === this.modal) this.close();
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.modal.classList.contains('open')) {
+          this.close();
+        }
+      });
+    },
+
+    close() {
+      if (this.modal) this.modal.classList.remove('open');
+    }
+  };
+
+  // 15. MATRIX DIGITAL RAIN CONTROLLER
+  const MatrixRainController = {
+    canvas: null,
+    ctx: null,
+    columns: 0,
+    drops: [],
+    interval: null,
+    active: false,
+
+    init() {
+      this.canvas = document.getElementById('matrix-canvas');
+      const btn = document.getElementById('tray-matrix-btn');
+      if (!this.canvas) return;
+      this.ctx = this.canvas.getContext('2d');
+
+      if (btn) {
+        btn.addEventListener('click', () => this.toggle());
+      }
+    },
+
+    toggle() {
+      this.active = !this.active;
+      const btn = document.getElementById('tray-matrix-btn');
+      if (this.active) {
+        this.canvas.classList.add('active');
+        if (btn) btn.style.borderColor = 'var(--teal-bright)';
+        this.start();
+        AudioFX.playBeep(1200, 0.08, 'sine');
+      } else {
+        this.canvas.classList.remove('active');
+        if (btn) btn.style.borderColor = 'var(--border)';
+        this.stop();
+        AudioFX.playBeep(400, 0.08, 'sine');
+      }
+    },
+
+    start() {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+      this.columns = Math.floor(this.canvas.width / 18);
+      this.drops = [];
+      for (let i = 0; i < this.columns; i++) {
+        this.drops[i] = Math.floor(Math.random() * -50);
+      }
+
+      if (this.interval) clearInterval(this.interval);
+      this.interval = setInterval(() => this.draw(), 40);
+    },
+
+    stop() {
+      if (this.interval) clearInterval(this.interval);
+      if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+
+    draw() {
+      if (!this.active || !this.ctx) return;
+      this.ctx.fillStyle = 'rgba(10, 22, 20, 0.12)';
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+      this.ctx.fillStyle = '#7FEDE0';
+      this.ctx.font = '12px "JetBrains Mono", monospace';
+
+      const chars = '01PROMETHEUS_ALOYSIUS_SKUNKWORKS_KERNEL_SYSTEM_CODE_01';
+
+      for (let i = 0; i < this.drops.length; i++) {
+        const text = chars.charAt(Math.floor(Math.random() * chars.length));
+        const x = i * 18;
+        const y = this.drops[i] * 18;
+
+        this.ctx.fillText(text, x, y);
+
+        if (y > this.canvas.height && Math.random() > 0.975) {
+          this.drops[i] = 0;
+        }
+        this.drops[i]++;
+      }
+    }
+  };
+
+  // 16. DESKTOP MASCOT COMPANION (TASKBAR WALKING WITH GRAVITY PHYSICS)
+  const MascotPetController = {
+    pet: null,
+    bubble: null,
+    isDragging: false,
+    isWalking: false,
+    dragOffset: { x: 0, y: 0 },
+    idleTimer: null,
+    walkTimer: null,
+    gravityTimer: null,
+    quotes: [
+      "Select an icon to launch a window.",
+      "Drag the mascot to test gravity physics!",
+      "Click Mentors to view club leaders.",
+      "Click Progress to track completed sessions.",
+      "Use Terminal to execute system commands.",
+      "Ms. Nishmitha is the Club Coordinator.",
+      "System operates at peak efficiency.",
+      "Play Snake.exe to set high scores."
+    ],
+    quoteIdx: 0,
+
+    init() {
+      this.pet = document.getElementById('desktop-pet');
+      this.bubble = document.getElementById('pet-speech-bubble');
+      if (!this.pet || !this.bubble) return;
+
+      this.setupDragging();
+      this.setupInteractions();
+      this.startTaskbarWalking();
+      this.startIdleChatter();
+    },
+
+    setupDragging() {
+      const onMouseDown = (e) => {
+        if (e.button !== 0) return;
+        this.isDragging = true;
+        this.stopWalking();
+        if (this.gravityTimer) cancelAnimationFrame(this.gravityTimer);
+
+        this.pet.classList.add('dragging');
+        this.pet.classList.remove('walking');
+
+        const rect = this.pet.getBoundingClientRect();
+        this.dragOffset.x = e.clientX - rect.left;
+        this.dragOffset.y = e.clientY - rect.top;
+
+        this.say("Lifted mascot...");
+        AudioFX.playBeep(950, 0.05, 'sine');
+
+        const onMouseMove = (moveEvent) => {
+          if (!this.isDragging) return;
+          const x = Math.max(10, Math.min(window.innerWidth - 100, moveEvent.clientX - this.dragOffset.x));
+          const y = Math.max(10, Math.min(window.innerHeight - 130, moveEvent.clientY - this.dragOffset.y));
+          this.pet.style.left = x + 'px';
+          this.pet.style.top = y + 'px';
+          this.pet.style.right = 'auto';
+          this.pet.style.bottom = 'auto';
+        };
+
+        const onMouseUp = () => {
+          if (!this.isDragging) return;
+          this.isDragging = false;
+          this.pet.classList.remove('dragging');
+
+          // Apply Gravity Physics to drop mascot back to taskbar floor
+          this.applyGravity();
+
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      };
+
+      this.pet.addEventListener('mousedown', onMouseDown);
+    },
+
+    applyGravity() {
+      // Taskbar ground Y coordinate (top of taskbar)
+      const groundY = window.innerHeight - 135;
+      const rect = this.pet.getBoundingClientRect();
+      let currentY = rect.top;
+      let velocityY = 0;
+      const gravity = 1.8;
+
+      if (currentY >= groundY) {
+        this.pet.style.top = groundY + 'px';
+        this.say("Landed on taskbar!");
+        AudioFX.playBeep(700, 0.06, 'triangle');
+        return;
+      }
+
+      this.say("Falling with gravity...");
+
+      const stepGravity = () => {
+        if (this.isDragging) return;
+        velocityY += gravity;
+        currentY += velocityY;
+
+        if (currentY >= groundY) {
+          currentY = groundY;
+          this.pet.style.top = groundY + 'px';
+          this.say("Landed safely!");
+          AudioFX.playBeep(650, 0.08, 'triangle');
+          setTimeout(() => AudioFX.playBeep(900, 0.08, 'sine'), 80);
+          return;
+        }
+
+        this.pet.style.top = currentY + 'px';
+        this.gravityTimer = requestAnimationFrame(stepGravity);
+      };
+
+      this.gravityTimer = requestAnimationFrame(stepGravity);
+    },
+
+    setupInteractions() {
+      this.pet.addEventListener('mouseenter', () => {
+        if (!this.isDragging && !this.isWalking) {
+          this.say("Hello builder!");
+          AudioFX.playBeep(1100, 0.04, 'sine');
+        }
+      });
+
+      this.pet.addEventListener('click', (e) => {
+        e.stopPropagation();
+        AudioFX.playBeep(1300, 0.08, 'sine');
+        setTimeout(() => AudioFX.playBeep(1600, 0.08, 'sine'), 90);
+
+        this.quoteIdx = (this.quoteIdx + 1) % this.quotes.length;
+        this.say(this.quotes[this.quoteIdx]);
+      });
+    },
+
+    startTaskbarWalking() {
+      // Mascot periodically steps and walks along top edge of taskbar
+      setInterval(() => {
+        if (!this.isDragging && !this.isWalking && Math.random() > 0.3) {
+          this.walkOnTaskbar();
+        }
+      }, 13000);
+    },
+
+    walkOnTaskbar() {
+      this.isWalking = true;
+      this.pet.classList.add('walking');
+
+      const rect = this.pet.getBoundingClientRect();
+      const currentX = rect.left;
+      const groundY = window.innerHeight - 135;
+
+      // Choose a target X spot on taskbar
+      const targetX = Math.max(160, Math.min(window.innerWidth - 240, Math.random() * (window.innerWidth - 400) + 160));
+
+      if (targetX < currentX) {
+        this.pet.classList.add('facing-left');
+      } else {
+        this.pet.classList.remove('facing-left');
+      }
+
+      this.pet.style.left = currentX + 'px';
+      this.pet.style.top = groundY + 'px';
+      this.pet.style.right = 'auto';
+      this.pet.style.bottom = 'auto';
+
+      const duration = 2800;
+      const startTime = performance.now();
+
+      const stepWalk = (now) => {
+        if (this.isDragging) {
+          this.stopWalking();
+          return;
+        }
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        const easeProgress = 0.5 - Math.cos(progress * Math.PI) / 2;
+
+        const nowX = currentX + (targetX - currentX) * easeProgress;
+        this.pet.style.left = nowX + 'px';
+
+        if (progress < 1) {
+          this.walkTimer = requestAnimationFrame(stepWalk);
+        } else {
+          this.stopWalking();
+          this.say("Inspecting taskbar...", 2200);
+        }
+      };
+
+      this.walkTimer = requestAnimationFrame(stepWalk);
+    },
+
+    stopWalking() {
+      this.isWalking = false;
+      this.pet.classList.remove('walking');
+      if (this.walkTimer) cancelAnimationFrame(this.walkTimer);
+    },
+
+    startIdleChatter() {
+      setInterval(() => {
+        if (!this.isDragging && !this.isWalking && Math.random() > 0.4) {
+          const randomMsg = this.quotes[Math.floor(Math.random() * this.quotes.length)];
+          this.say(randomMsg, 3500);
+        }
+      }, 16000);
+    },
+
+    say(msg, duration = 3000) {
+      if (!this.bubble) return;
+      this.bubble.textContent = msg;
+      this.bubble.classList.add('show');
+
+      if (this.idleTimer) clearTimeout(this.idleTimer);
+      this.idleTimer = setTimeout(() => {
+        this.bubble.classList.remove('show');
+      }, duration);
     }
   };
 
@@ -844,6 +1498,12 @@
     SysMonEngine.init();
     TrailTrackerEngine.init();
     TerminalController.init();
+    BackgroundCanvasController.init();
+    SysMonChartController.init();
+    AudioVizController.init();
+    LightboxController.init();
+    MatrixRainController.init();
+    MascotPetController.init();
   });
 
 })();
